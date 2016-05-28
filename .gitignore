@@ -13,5 +13,8 @@ coverage.xml
 *.mo
 *.pot
 
-#Ipython Notebook
+# Ipython Notebook
 .ipynb_checkpoints
+
+# Matlab Autosaves
+*.asv

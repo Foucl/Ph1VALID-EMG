@@ -1,29 +1,23 @@
+%% DOCUMENT TITLE
+% INTRODUCTORY TEXT
+%% SECTION TITLE
+% DESCRIPTIVE TEXT
+%% SECTION TITLE
+% DESCRIPTIVE TEXT
+%%
+
+
+
 %% setup
 
-% setup paths
-script_path = 'O:/Mitarbeiter/Christopher/Analysis_ValidExp/EMG/Matlab/Ph1VALID-EMG/Kladde_VP25';
-toolboxes_path = 'O:/Mitarbeiter/Christopher/Tools/Matlab-toolboxes';
-data_path = 'O:\Mitarbeiter\Christopher\Data_ValidExp';
-data_path_loc = 'C:\Users\DDMitarbeiter\Documents\Christopher\Data_ValidExp';
-emg_path = fullfile(data_path_loc, 'EMG_raw');
-presentation_path = fullfile(data_path, 'Presentation-logfiles');
+ph1valid_setup;
 
-% remove existing eeglab & fieldtrip installations from path
-%P=regexp(matlabpath,';','split');
-%P = P(cellfun(@isempty,regexp(P,'(eeglab)|(fieldtrip)')));
-%new_path = cell2mat(strcat(P,';'));
-%matlabpath(new_path);
-restoredefaultpath;
-
-% add my git clones of eeglab and fieldtrip to path
-addpath(fullfile(toolboxes_path, 'fieldtrip'));
-addpath(fullfile(toolboxes_path, 'fieldtrip', 'fileio')); %TODO parametrize that
-addpath(fullfile(toolboxes_path, 'eeglab'));
+subjid = 'VP25';
 
 % find CNT file of subject 25
-fname = dir(fullfile(emg_path, 'VP25', '*.bdf'));
+fname = dir(fullfile(emg_path, subjid, '*.bdf'));
 fname = fname.name;
-data_file = fullfile(emg_path, 'VP25', fname);
+data_file = fullfile(emg_path, subjid, fname);
 
 %% loading in fieldtrip
 
@@ -35,7 +29,7 @@ data_file = fullfile(emg_path, 'VP25', fname);
  cfg.trialdef.poststim = 1.5;                  % in seconds
  cfg.trialdef.eventvalue = [51 52 62 61];
  cfg.trialdef.eventtype = 'STATUS';
- %cfg.trialdef.eventtype = 'gui';
+
  cfg.trialfun = 'ft_trialfun_general';
  cfg.dataset = data_file;
  cfg.headerfile = data_file;

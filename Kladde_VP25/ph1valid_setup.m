@@ -7,10 +7,10 @@ userDir = char(java.lang.System.getProperty('user.home'));
 
 %get connection state
 
-localDataDir = fullfile(userDir, 'cd', 'ph1valid_data');
+localDataDir = fullfile(userDir, 'ph1valid_data');
 remoteDataDir = 'O:\Mitarbeiter\Christopher\Data_ValidExp';
 remoteTb = 'O:/Mitarbeiter/Christopher/Tools/Matlab-toolboxes';
-localTb = fullfile(userDir, 'cd', 'Matlab-toolboxes');
+localTb = fullfile(userDir,  'Matlab-toolboxes');
 
 % setup paths
 toolboxes_path = localTb;

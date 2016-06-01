@@ -14,9 +14,10 @@ localTb = fullfile(userDir,  'Matlab-toolboxes');
 
 % setup paths
 toolboxes_path = localTb;
-data_path = localDataDir;
+data_path = remoteDataDir;
 emg_path = fullfile(data_path, 'EMG_raw');
 presentation_path = fullfile(data_path, 'Presentation-logfiles');
+emg_out_path = fullfile(data_path, 'EMG_preprocessed');
 
 % remove existing eeglab & fieldtrip installations from path
 

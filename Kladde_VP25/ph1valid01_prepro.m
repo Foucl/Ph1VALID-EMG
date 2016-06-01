@@ -1,25 +1,17 @@
-%% DOCUMENT TITLE
-% INTRODUCTORY TEXT
-%% SECTION TITLE
-% DESCRIPTIVE TEXT
-%% SECTION TITLE
-% DESCRIPTIVE TEXT
-%%
-
-
-
-%% setup
+function [ out ] = ph1valid01_prepro( subjid )
 
 ph1valid_setup;
 
-subjid = 'VP25';
+if  nargin == 0
+subjid = 'VP20';
+end;
 
 % find CNT file of subject 25
 fname = dir(fullfile(emg_path, subjid, '*.bdf'));
 fname = fname.name;
 data_file = fullfile(emg_path, subjid, fname);
 
-%% loading in fieldtrip
+
 
 % basic prepro: downsample, filter, rectify (?)
 % get all Response Priming trials:
@@ -73,7 +65,7 @@ data.trial = cellfun(@abs,data.trial, 'UniformOutput', false);
  cfg.viewmode = 'vertical';
  cfg.ylim = [-5 150];
  cfg.selectmode = 'marktroughevent';
- ft_databrowser(cfg, dat);
+ %ft_databrowser(cfg, data);
  %ft_databrowser(cfg, data_AN_prep);
 
 % split data into four conditions
@@ -81,23 +73,21 @@ conds = {'AN_prep' 'AN_unprep' 'HA_prep' 'HA_unprep';
         51 61 52 62;
         1 1 2 2};
     
-data_by_con = cell(2,4);
-
 
 th = [];
  for i = 1:length(conds)
      con = conds{1,i};
      trg = conds{2,i};
      chani = conds{3,i};
-     data_by_con{1,i} = con;
+     
      
      cfg = [];
      %cfg.channel = chan; not a good idea
      cfg.trials = find(data.trialinfo == trg);
-     data_by_con{2,i} = ft_selectdata(cfg, data);
-     data_by_con{2,i}.cfg.event = data_by_con{2,i}.cfg.previous.event;  
+     
      
      indices = find(data.trialinfo == trg);
+     indices = indices(indices<=200);
      curdat = data.trial(indices);
      curtime = data.time(indices);
      cursample = data.sampleinfo(indices);
@@ -122,38 +112,35 @@ th = [];
         end
      end
      %data.trialinfo(indices) = [data.trialinfo(indices) htime.' hind.' hind_tot.'];
-     % idee: erst drei weitere trialinfo-spalten anlegen (und mit nan oder
-     % 0 füllen), dann an den richtigen stellen ersetzen?
+     data.trialinfo(indices,2) = htime.';
+     data.trialinfo(indices,3) = hind.';
+     data.trialinfo(indices,4) = hind_tot.';
  end
  
- dat = data_by_con{2,4};
  
+ misses = find(isnan(data.trialinfo(:,2)));
+ errors = find(data.trialinfo(:,2) <= 0);
+ happies = find(data.trialinfo(:,1) == 52 | data.trialinfo(:,1) == 62);
+ prepareds = find(data.trialinfo(:,1) == 51 | data.trialinfo(:,1) == 52);
+
  
- % "excessive activity in foreperiod" rausschmeißen
-channel = 2;
-% global threshold
-thx = 0.25*mean(cellfun(@(x) max(x(channel,:)), dat.trial))
+ data.trialinfo(:,5) = false;
+ data.trialinfo(:,6) = false;
+ data.trialinfo(:,7) = false;
+ data.trialinfo(:,8) = false;
+ data.trialinfo(errors,5) = true;
+ data.trialinfo(misses,6) = true;
 
-
-htime=[];
-hind=[];
-hind_tot=[];
-for i = 1:length(dat.trial)
-    %index of first timepoint exceeding the threshold:
-    idx = find(dat.trial{i}(channel,:) >= thx,1);
-    if not(isempty(idx))
-         htime(i) = dat.time{i}(idx);
-         hind(i) = idx;
-         hind_tot(i) = dat.sampleinfo(i,1) + hind(i);
-    else
-        htime(i) = nan;
-        hind(i) = nan;
-        hind_tot(i) = nan;
-    end
+ 
+ % clean response-Time-Variable
+ data.trialinfo([errors; misses],2) = nan;
+ data.trialinfo(prepareds,7) = true;
+ data.trialinfo(happies,8) = true;
+ 
+ %write to file
+ mkdir(fullfile(emg_out_path, subjid));
+ save(fullfile(emg_out_path, subjid, [subjid '_prepro.mat']), 'data');
+ 
+ disp(['wrote ' subjid '_prepro.mat']);
+ 
 end
-
-dat.trialinfo = [dat.trialinfo(:,1) htime.' hind.' hind_tot.'];
-%trialinfo now containing: trigger,time of response
-%add this to events
-
-

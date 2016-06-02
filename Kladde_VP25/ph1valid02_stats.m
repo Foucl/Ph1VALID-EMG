@@ -1,10 +1,12 @@
-function [ out ] = ph1valid02_stats( subj )
+function [ out ] = ph1valid02_stats( subjid )
 %PH1VALID02_STATS Summary of this function goes here
 %   Detailed explanation goes here
-subjid='VP25';
+if  nargin == 0
+    subjid = 'VP09';
+end;
 ph1valid_setup
 prepro_file = fullfile(emg_out_path, subjid, [subjid '_prepro.mat']);
-if ~exist('prepro_file', 'file')
+if ~exist(prepro_file, 'file')
     error([subjid ' not yet preprocessed, couldnt find ' prepro_file]);
 end;
 

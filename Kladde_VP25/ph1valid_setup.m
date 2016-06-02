@@ -14,7 +14,7 @@ localTb = fullfile(userDir,  'Matlab-toolboxes');
 
 % setup paths
 toolboxes_path = localTb;
-data_path = remoteDataDir;
+data_path = localDataDir;
 emg_path = fullfile(data_path, 'EMG_raw');
 presentation_path = fullfile(data_path, 'Presentation-logfiles');
 emg_out_path = fullfile(data_path, 'EMG_preprocessed');

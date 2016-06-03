@@ -16,41 +16,40 @@ load(prepro_file);
 mean_ANPrep = mean(data.trialinfo(find(data.trialinfo(:,1)==51),2), 'omitnan');
  std_ANPrep = std(data.trialinfo(find(data.trialinfo(:,1)==51),2), 'omitnan');
  err_ANPrep = length(data.trialinfo(find(data.trialinfo(:,1)==51 & data.trialinfo(:,5)==1),2));
- miss_ANPrep = length(data.trialinfo(find(data.trialinfo(:,1)==51 & data.trialinfo(:,6)==1),2));
+ ommiss_ANPrep = length(data.trialinfo(find(data.trialinfo(:,1)==51 & data.trialinfo(:,5)==2),2));
+ fp_ANPrep = length(data.trialinfo(find(data.trialinfo(:,1)==51 & data.trialinfo(:,5)==3),2));
  
  mean_HAPrep = mean(data.trialinfo(find(data.trialinfo(:,1)==52),2), 'omitnan');
  std_HAPrep = std(data.trialinfo(find(data.trialinfo(:,1)==52),2), 'omitnan');
  err_HAPrep = length(find(data.trialinfo(:,1)==52 & data.trialinfo(:,5)==1));
- miss_HAPrep = length(find(data.trialinfo(:,1)==52 & data.trialinfo(:,6)==1));
+ ommiss_HAPrep = length(find(data.trialinfo(:,1)==52 & data.trialinfo(:,5)==2));
+ fp_HAPrep = length(find(data.trialinfo(:,1)==52 & data.trialinfo(:,5)==3));
  
  mean_ANUnPrep = mean(data.trialinfo(find(data.trialinfo(:,1)==61),2), 'omitnan');
  std_ANUnPrep = std(data.trialinfo(find(data.trialinfo(:,1)==61),2), 'omitnan');
- err_ANUnPrep = length(data.trialinfo(find(data.trialinfo(:,1)==61 & data.trialinfo(:,5)==1),2));
- miss_ANUnPrep = length(data.trialinfo(find(data.trialinfo(:,1)==61 & data.trialinfo(:,6)==1),2));
+ err_ANUnPrep = length(find(data.trialinfo(:,1)==61 & data.trialinfo(:,5)==1));
+ ommiss_ANUnPrep = length(find(data.trialinfo(:,1)==61 & data.trialinfo(:,5)==2));
+ fp_ANUnPrep = length(find(data.trialinfo(:,1)==61 & data.trialinfo(:,5)==3));
  
  mean_HAUnPrep = mean(data.trialinfo(find(data.trialinfo(:,1)==62),2), 'omitnan');
  std_HAUnPrep = std(data.trialinfo(find(data.trialinfo(:,1)==62),2), 'omitnan');
- err_HAUnPrep = length(data.trialinfo(find(data.trialinfo(:,1)==62 & data.trialinfo(:,5)==1),2));
- miss_HAUnPrep = length(data.trialinfo(find(data.trialinfo(:,1)==62 & data.trialinfo(:,6)==1),2));
+ err_HAUnPrep = length(find(data.trialinfo(:,1)==62 & data.trialinfo(:,5)==1));
+ ommiss_HAUnPrep = length(find(data.trialinfo(:,1)==62 & data.trialinfo(:,5)==2));
+ fp_HAUnPrep = length(find(data.trialinfo(:,1)==62 & data.trialinfo(:,5)==3));
  
- out = [mean_ANPrep std_ANPrep err_ANPrep miss_ANPrep mean_HAPrep std_HAPrep err_HAPrep miss_HAPrep mean_ANUnPrep std_ANUnPrep err_ANUnPrep miss_ANUnPrep ...
-      mean_HAUnPrep std_HAUnPrep  err_HAUnPrep  miss_HAUnPrep];
+ out = [mean_ANPrep std_ANPrep err_ANPrep ommiss_ANPrep fp_ANPrep mean_HAPrep std_HAPrep err_HAPrep ommiss_HAPrep fp_HAPrep mean_ANUnPrep std_ANUnPrep err_ANUnPrep ommiss_ANUnPrep ...
+      fp_ANUnPrep mean_HAUnPrep std_HAUnPrep err_HAUnPrep  ommiss_HAUnPrep fp_HAUnPrep];
 
 
  
- trialData = array2table(data.trialinfo,'VariableNames',{'Condition','ResponseTime','ResponseSample', 'ResponseSampleGlobal', 'error', 'miss', 'prepared', 'emotion'});
+ trialData = array2table(data.trialinfo,'VariableNames',{'Condition','ResponseTime','ResponseSample', 'ResponseSampleGlobal', 'type'});
  trialData.Condition = categorical(trialData.Condition);
- trialData.error = logical(trialData.error);
- trialData.miss = logical(trialData.miss);
- trialData.prepared = categorical(trialData.prepared);
- trialData.emotion = categorical(trialData.emotion);
+ %trialData.type = categorical(trialData.type);
  trialData.Condition = renamecats(trialData.Condition,{'AN_prep'; 'HA_prep'; 'AN_unprep'; 'HA_unprep'});
- trialData.emotion = renamecats(trialData.emotion,{'angry'; 'happy'});
- trialData.prepared = renamecats(trialData.prepared,{'unprepared'; 'prepared'});
  
-statarray = grpstats(trialData,{'Condition'},{'mean', @sum, 'std'}, 'DataVars',{'ResponseTime', 'error', 'miss'});
+ 
+statarray = grpstats(trialData,{'Condition', 'type'},{'mean', 'std'}, 'DataVars',{'ResponseTime'});
 
-statarray = statarray(:,[1 2 3 5 7 10]);
 
 end
 

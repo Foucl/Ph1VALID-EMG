@@ -14,8 +14,9 @@ restoredefaultpath;
 % get basic information on current machine
 
 SERVER_DRIVE = 'O:';
+SERVER_HOME = fullfile(SERVER_DRIVE, 'Mitarbeiter', 'Christopher');
 
-% alternatively use v2struct(a,b,c) to add vars to strucutre later
+
 S.userDir = char(java.lang.System.getProperty('user.home'));
 S.userName = char(java.lang.System.getProperty('user.name'));
 S.computerName = char(java.net.InetAddress.getLocalHost.getHostName);
@@ -23,9 +24,9 @@ S.computerName = char(java.net.InetAddress.getLocalHost.getHostName);
 S.serverConnected = false;
 S.localDataDirExists = false;
 
-remoteDataPath = fullfile(SERVER_DRIVE,'Mitarbeiter','Christopher','Data_ValidExp');
-remoteOutPath = fullfile(SERVER_DRIVE,'Mitarbeiter','Christopher','Analysis_ValidExp','ph1valid_out');
-remoteToolboxPath = fullfile(SERVER_DRIVE, 'Mitarbeiter', 'Christopher', 'Tools', 'Matlab-toolboxes');
+remoteDataPath = fullfile(SERVER_HOME,'Data_ValidExp');
+remoteOutPath = fullfile(SERVER_HOME,'Analysis_ValidExp','ph1valid_out');
+remoteToolboxPath = fullfile(SERVER_HOME, 'Tools', 'Matlab-toolboxes');
 
 
 localDataPath = fullfile(S.userDir, 'ph1valid_data');

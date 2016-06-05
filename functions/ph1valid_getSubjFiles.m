@@ -1,4 +1,4 @@
-function [ SubjInfo ] = ph1valid_getSubjFiles( subjid )
+pathfunction [ SubjInfo ] = ph1valid_getSubjFiles( subjid )
 %PH1VALID_GET Summary of this function goes here
 %   Detailed explanation goes here
 

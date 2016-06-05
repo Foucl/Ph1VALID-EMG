@@ -38,7 +38,8 @@ else %loop over all files
 end;
 
 if ~exist('SubjInfo', 'var')
-    error('All available infofiles already converted - nothing to do');
+    warning('All available infofiles already converted - nothing to do');
+    return;
 end;
 %now everything is ready inside SubjInfo
 ph1valid_writeToSubjmfile(SubjInfo);

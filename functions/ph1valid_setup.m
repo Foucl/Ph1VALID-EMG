@@ -6,6 +6,7 @@ if nargin < 1
     context = 'local';
 end;
 
+
 warning('off', 'MATLAB:dispatcher:pathWarning');
 warning('off', 'MATLAB:MKDIR:DirectoryExists');
 restoredefaultpath;
@@ -43,6 +44,9 @@ if exist(localDataPath, 'dir')
     mkdir(localOutPath)
 end
 
+S.dataDir = [];
+S.outDir = [];
+
 if strcmp(context, 'remote') && ~S.serverConnected
     error('requested remote Data, but Network Drive O was not found')
 elseif strcmp(context, 'remote') && S.serverConnected
@@ -65,7 +69,10 @@ S.emgRawDir = fullfile(S.dataDir, 'EMG_raw');
 S.presentationDir = fullfile(S.dataDir, 'Presentation-logfiles');
 S.emgPreproDir = fullfile(S.outDir, 'EMG_preprocessed');
 S.subjmfileDir = fullfile(S.outDir, 'subjmfiles');
+S.projectDir = mfilename('fullpath');
 
+addpath(fullfile(S.subjmfileDir));
+addpath(fullfile(S.projectDir));
 addpath(fullfile(S.toolboxDir, 'fieldtrip'));
 
 %experimental: use global variable, so the setup does not have to be run

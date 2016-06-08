@@ -1,4 +1,4 @@
-pathfunction [ SubjInfo ] = ph1valid_getSubjFiles( subjid )
+function [ SubjInfo ] = ph1valid_getSubjFiles( subjid )
 %PH1VALID_GET Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -48,7 +48,8 @@ end
 
 function [ SubjVars ] = parsePresLog ( subjid, path )
 % reads subjinfo-file and returns variables in structure SubjVars
-slCharacterEncoding('ISO-8859-1');
+%slCharacterEncoding('ISO-8859-1');
+slCharacterEncoding('Windows-1252')
 presFolder = fullfile(path, subjid);
 FnameObj = dir(fullfile(presFolder, '*subjinfo.tsv'));
 fname = FnameObj.name;

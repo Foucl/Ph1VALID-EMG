@@ -27,7 +27,7 @@ for i = 1:length(SubjInfo)
     
     fieldNames = fieldnames(SubjInfo(i));
      for iField = 1:length(fieldNames)
-         var = fieldNames{iField};
+         var = ['subjinfo.' fieldNames{iField}];
          val = SubjInfo(i).(fieldNames{iField});
          if isnumeric(val)
              val = int2str(val);

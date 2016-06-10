@@ -28,11 +28,11 @@ if ~isLoop
     SubjInfo = SubjVars;
 else %loop over all files
     availablePresFiles = ls(presentationDir);
-    availablePresFiles = availablePresFiles(5:end,:);
+    availablePresFiles = availablePresFiles(5:end,1:4);
     existingSubjmfiles = ls(subjmfileDir);
     existingSubjmfiles = existingSubjmfiles(3:end,1:end-11);
     toLoop = setdiff(availablePresFiles, existingSubjmfiles, 'rows');
-    for i = 1:length(toLoop)
+    for i = 1:size(toLoop,1)
         SubjInfo(i) = parsePresLog(toLoop(i,:), presentationDir);
     end;
 end;

@@ -22,5 +22,6 @@ for i = 1:length(existingSubjmfiles)
 end;
 
 mfile_table = struct2table(sub);
+writetable(mfile_table, 'subjinfo.csv');
 end
 

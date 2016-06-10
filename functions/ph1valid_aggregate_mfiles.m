@@ -1,4 +1,4 @@
-function [ output_args ] = ph1valid_aggregate_mfiles( input_args )
+function [ mfile_table ] = ph1valid_aggregate_mfiles( input_args )
 %PH1VALID_AGGREGATE_MFILES Summary of this function goes here
 %   Detailed explanation goes here
 global Sess;
@@ -21,6 +21,6 @@ for i = 1:length(existingSubjmfiles)
     sub(i) = subjinfo;
 end;
 
-
+mfile_table = struct2table(sub);
 end
 

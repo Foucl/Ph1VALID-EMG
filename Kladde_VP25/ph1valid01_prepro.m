@@ -44,6 +44,7 @@ bipolar.tra       = [
     ];
 data = ft_apply_montage(data, bipolar);
 
+%rectify
 data.trial = cellfun(@abs,data.trial, 'UniformOutput', false);
 
 %resample, but keep sampleinfo (tricky)

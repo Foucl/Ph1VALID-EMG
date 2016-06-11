@@ -75,6 +75,8 @@ S.projectDir = mfilename('fullpath');
 addpath(fullfile(S.subjmfileDir));
 addpath(fullfile(S.projectDir));
 addpath(fullfile(S.toolboxDir, 'fieldtrip'));
+addpath(fullfile(S.toolboxDir, 'fieldtrip', 'fileio'));
+addpath(fullfile(S.projectDir, 'helpers'));
 
 %experimental: use global variable, so the setup does not have to be run
 %every time:

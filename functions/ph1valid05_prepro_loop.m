@@ -9,7 +9,7 @@ for i = 1:46
     end;
     arg = ['VP' b];
     try
-        ph1valid02_classify(arg);
+        ph1valid01_prepro(arg);
     catch ME
         disp(ME);
         fehler{j,1} = ['VP' b];

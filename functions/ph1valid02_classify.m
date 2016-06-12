@@ -187,16 +187,9 @@ for i = 1:size(conds, 2)
     nHits = Info.([con '_nHitTrials']);
     nFP = Info.([con '_nFpTrials']);
     nOm = Info.([con '_nOmissionTrials']);
-    Info.([con '_propHit']) = nHits / (nDefault);
-    Info.([con '_propOm']) = nOm / (nDefault);
-    Info.([con '_propFP']) = nFP / (nDefault);
-%     indices = find(data.trialinfo == trg);
-%     curtrial = data.trialinfo(indices,:);
-%     %mean_response_time
-%     mean_response_time = mean(curtrial(:,3), 'omitnan');
-%     sd_response_time = std(curtrial(:,3), 'omitnan');
-%     Info.([con '_meanRT']) = mean_response_time;
-%     Info.([con '_sdRT']) = sd_response_time;
+    Info.([con '_propHit']) = nHits / (nDefault - nErr);
+    Info.([con '_propOm']) = nOm / (nDefault - nErr);
+    Info.([con '_propFP']) = nFP / (nDefault - nErr);
 end;
 
 %% 5. dump data

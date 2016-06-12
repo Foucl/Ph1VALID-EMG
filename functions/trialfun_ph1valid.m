@@ -53,7 +53,9 @@ if ~isempty(val) && ~all(isnan(val)) && size(trl,1)==size(val,1)
 end
 
 if length(trl) < 200
-    error('not enough trials, found only %d.', length(trl));
+    if isempty(strfind(cfg.dataset, 'VP14'))
+        error('not enough trials, found only %d.', length(trl));
+    end;
 elseif length(trl) > 200
     warning('too many trials. found %d.\nTrimming away early trials.', length(trl));
     trl = trl(length(trl) - 200 + 1:end,:);

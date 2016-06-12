@@ -32,6 +32,11 @@ fname = fname(find(max([fname.bytes]))).name;  % take the largest file
 dataFile = fullfile(dataDir, fname);
     
 
-
-end
-
+% function dataFile = concatVP14
+% 
+% dataDir = fullfile(SessionInfo.emgRawDir, 'VP14');
+% fname = dir(fullfile(dataDir, '*.bdf'));
+% 
+% dataFile = [];
+% dataFile.A = fullfile(dataDir, fname(1).name);
+% dataFile.B = fullfile(dataDir, fname(2).name);

@@ -1,4 +1,4 @@
-function [ data, info ] = ph1valid01_prepro( subjid, varargin )
+function [ data, Info ] = ph1valid01_prepro( subjid, varargin )
 %PH1VALID01_PREPRO basic EMG preprocessing
 %   takes a subjid and preprocesses the corresponding bdf recording
 %   inputs:
@@ -49,27 +49,15 @@ end;
 
 %% reading data file
 %%% checking folder
+
 dataFile = ph1valid_validateRP(subjid);
 
-%%% define trials
+if strcmp(subjid, 'VP14')
+    data = concatVP14(input, SessionInfo);
+else
+    data = basicPrepro(dataFile, input);
+end;
 
-cfg = [];                                   % create an empty variable called cfg
-cfg.trialdef.prestim = input.sgm(1);                 % in seconds
-cfg.trialdef.poststim = input.sgm(2);                  % in seconds
-cfg.trialfun = 'trialfun_ph1valid';
-cfg.dataset = dataFile;
-cfg = ft_definetrial(cfg);
-trl = cfg.trl;
-
-
-%%% preprocess
-% baseline correction, low pass filter (10Hz, order 2)
-cfg.demean          = 'yes';
-cfg.baselinewindow  = input.bsl1;
-cfg.lpfilter        = 'yes';
-cfg.lpfreq          = 10;
-cfg.lpfiltord = 2; % for BVA (defaults) compatibility
-data = ft_preprocessing(cfg);
 
 %%% Create Montages (re-referencing)
 bipolar.labelorg  = {'EXG1', 'EXG2', 'EXG3', 'EXG4'};
@@ -112,7 +100,7 @@ for i = 1:size(conds, 2)
     indices = find(data.trialinfo == trg);
     curdat = data.trial(indices);
     curtime = data.time(indices);
-    cursample = data.sampleinfo(indices);
+    %cursample = data.sampleinfo(indices);
     
     switch i
        case 1
@@ -160,7 +148,7 @@ for i = 1:size(conds,2)
     con = conds{1,i};
     chani = conds{3,i};
     trg = conds{2,i};
-    corInd = setdiff(1:200,allErrors);
+    corInd = setdiff(1:size(data.trialinfo, 1),allErrors);
     indices = find(data.trialinfo(corInd) == trg);
     curdat = data.trial(indices);
     amps = cellfun(@(x) max(x(chani,:)), curdat);
@@ -174,5 +162,38 @@ save(fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_prepro.mat']), 'data')
 
 ph1valid_writeToSubjmfile(Info, subjid);
 
-end
+
+function data = basicPrepro (dataFile, input)
+%define trials
+cfg = [];                                   % create an empty variable called cfg
+cfg.trialdef.prestim = input.sgm(1);                 % in seconds
+cfg.trialdef.poststim = input.sgm(2);                  % in seconds
+cfg.trialfun = 'trialfun_ph1valid';
+cfg.dataset = dataFile;
+cfg = ft_definetrial(cfg);
+
+%%% preprocess
+% baseline correction, low pass filter (10Hz, order 2)
+cfg.demean          = 'yes';
+cfg.baselinewindow  = input.bsl1;
+cfg.lpfilter        = 'yes';
+cfg.lpfreq          = 10;
+cfg.lpfiltord = 2; % for BVA (defaults) compatibility
+data = ft_preprocessing(cfg);
+
+
+function data = concatVP14 (input, SessionInfo)
+dataDir = fullfile(SessionInfo.emgRawDir, 'VP14');
+fname = dir(fullfile(dataDir, '*.bdf'));
+
+dataFile = [];
+dataFile.A = fullfile(dataDir, fname(1).name);
+dataFile.B = fullfile(dataDir, fname(2).name);
+
+dat.A = basicPrepro(dataFile.A, input);
+dat.B = basicPrepro(dataFile.B, input);
+
+data = ft_appenddata([], dat.A, dat.B);
+
+
 

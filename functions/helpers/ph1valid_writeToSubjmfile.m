@@ -28,8 +28,11 @@ for i = 1:length(SubjInfo)
         sid = subjid;
     end;
     fname =  [sid '_subjinfo.m'];
+    
+    cleanSubjmfile(SubjInfo(i), fullfile(subjmfileDir, fname));
+    
     fid = fopen(fullfile(subjmfileDir, fname),'At', 'n', 'ISO-8859-1'); % A: append without automatic flushing, t: open file in text mode
-    fprintf(fid,'\n%s\n\n',['%%% Subjmfile of ' sid ', this section was created at @ ' datestr(now)]); % write date and time
+    %fprintf(fid,'\n%s\n\n',['%%% Subjmfile of ' sid ', this section was created at @ ' datestr(now)]); % write date and time
     
     fieldNames = fieldnames(SubjInfo(i));
      for iField = 1:length(fieldNames)
@@ -51,5 +54,33 @@ for i = 1:length(SubjInfo)
 end;
 
 
-end
+function cleanSubjmfile (SubjInfo, fname)
+fieldNames = fieldnames(SubjInfo);
+vars = [];
+
+try
+    fid = fopen(fname,'r', 'n', 'ISO-8859-1');
+    Data = textscan(fid, '%s', 'delimiter', '\n', 'whitespace', '');
+    CStr = Data{1};
+    fclose(fid);
+    % now in CStr: cell array of all lines in file'
+
+    for iField = 1:length(fieldNames)
+        vars{iField} = ['subjinfo.' fieldNames{iField}];
+        IndexC = strfind(CStr, vars{iField});
+        Index = find(~cellfun('isempty', IndexC), 1);
+
+        if ~isempty(Index)
+            CStr(Index) = [];
+        end
+    end;
+    fid = fopen(fname,'w', 'n', 'ISO-8859-1');
+    fprintf(fid, '%s\n', CStr{:});
+    fclose(fid);
+catch
+end;
+
+
+
+
 

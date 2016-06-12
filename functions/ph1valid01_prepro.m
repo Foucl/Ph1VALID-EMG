@@ -21,7 +21,7 @@ function [ data, Info ] = ph1valid01_prepro( subjid, varargin )
 
 defSgm = [2 2.5];
 defBsl1 = [-2 -1.8];
-defBsl2 = [-0.2 0];
+defBsl2 = [-0.1 0];
 
 p=inputParser;
 
@@ -84,8 +84,15 @@ for i = 1:size(conds,2)
     trg = conds{2,i};
     indices = find(data.trialinfo == trg);
     curdat = data.trial(indices);
-    amps = cellfun(@(x) max(x(chani,:)), curdat);
-    Info.([con '_uncleanThreshold']) = 0.25*mean(amps);
+    amps{i} = cellfun(@(x) max(x(chani,:)), curdat);
+    if mod(i,2) == 0
+        j = i-1;
+    else
+        j = i;
+    end;
+    Info.([con '_max_amp']) = max(amps{j});
+    Info.([con '_mean_max_amp']) = mean(amps{j});
+    Info.([con '_Threshold']) = 0.25*mean(amps{j});
 end;
 
 %%% classify early activity
@@ -96,7 +103,7 @@ for i = 1:size(conds, 2)
     con = conds{1,i};
     trg = conds{2,i};
     chani = conds{3,i};
-    th = Info.([con '_uncleanThreshold']);
+    th = Info.([con '_Threshold']);
     indices = find(data.trialinfo == trg);
     curdat = data.trial(indices);
     curtime = data.time(indices);
@@ -104,16 +111,16 @@ for i = 1:size(conds, 2)
     
     switch i
        case 1
-           th_o = Info.([conds{1,3} '_uncleanThreshold']);
+           th_o = Info.([conds{1,3} '_Threshold']);
            chani_o = 2;
        case 2
-           th_o = Info.([conds{1,4} '_uncleanThreshold']);
+           th_o = Info.([conds{1,4} '_Threshold']);
            chani_o = 2;
        case 3
-           th_o = Info.([conds{1,1} '_uncleanThreshold']);
+           th_o = Info.([conds{1,1} '_Threshold']);
            chani_o = 1;
        case 4
-           th_o = Info.([conds{1,2} '_uncleanThreshold']);
+           th_o = Info.([conds{1,2} '_Threshold']);
            chani_o = 1;
     end;
     
@@ -121,17 +128,18 @@ for i = 1:size(conds, 2)
     for j = 1:length(curdat)
         idx = find(curdat{j}(chani,:) >= th, 1);  % indices of 'hits': => threshold in correct channel
         idx_o = find(curdat{j}(chani_o,:) >=th_o,1); % indices of hits-in-wrong-channel: wrong emotions shown
-        if (curtime{j}(idx_o) < 0) & (-0.3 < curtime{j}(idx_o))   % current trial is wrong
-            errorTrials = [errorTrials j];
+        if (curtime{j}(idx_o) < 0) & (-0.5 < curtime{j}(idx_o))   % current trial is wrong
+            errorTrials = [errorTrials indices(j)];
             data.trialinfo(indices(j),2) = 69;
-        elseif (curtime{j}(idx) < 0) & (-0.3 < curtime{j}(idx))
-            errorTrials = [errorTrials j];
+        elseif (curtime{j}(idx) < 0) & (-0.5 < curtime{j}(idx))
+            errorTrials = [errorTrials indices(j)];
             data.trialinfo(indices(j),2) = 60;
         else
             data.trialinfo(indices(j),2) = nan;
         end;
     end;
     Info.([con '_errorTrials']) = errorTrials;
+    Info.([con '_nErrorTrials']) = length(errorTrials);
     allErrors = [allErrors errorTrials];
     nErrors = nErrors + length(errorTrials);
 end;
@@ -143,19 +151,30 @@ end;
 Info.nErrors = nErrors;
 Info.allErrors = allErrors;
 
-% recalculate clean thresholds
-for i = 1:size(conds,2)
-    con = conds{1,i};
-    chani = conds{3,i};
-    trg = conds{2,i};
-    corInd = setdiff(1:size(data.trialinfo, 1),allErrors);
-    indices = find(data.trialinfo(corInd) == trg);
-    curdat = data.trial(indices);
-    amps = cellfun(@(x) max(x(chani,:)), curdat);
-    Info.([con '_max_amp']) = max(amps);
-    Info.([con '_mean_max_amp']) = mean(amps);
-    Info.([con '_cleanThreshold']) = 0.25*mean(amps);
-end;
+%% remove error trials from dataset
+Info.cleanTrials = setdiff(1:size(data.trialinfo, 1),allErrors);
+cfg = [];
+cfg.trials = Info.cleanTrials;
+data = ft_selectdata(cfg, data);
+
+%% re-preprocess data with different baseline (immediately preceding target)
+cfg = [];
+cfg.demean          = 'yes';
+cfg.baselinewindow  = input.bsl2;
+data = ft_preprocessing(cfg, data);
+
+%% recalculate clean thresholds
+% for i = 1:size(conds,2)
+%     con = conds{1,i};
+%     chani = conds{3,i};
+%     trg = conds{2,i};
+%     indices = find(data.trialinfo == trg);
+%     curdat = data.trial(indices);
+%     amps = cellfun(@(x) max(x(chani,:)), curdat);
+%     Info.([con '_max_amp']) = max(amps);
+%     Info.([con '_mean_max_amp']) = mean(amps);
+%     Info.([con '_cleanThreshold']) = 0.25*mean(amps);
+% end;
 
 mkdir(fullfile(SessionInfo.emgPreproDir, subjid));
 save(fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_prepro.mat']), 'data');

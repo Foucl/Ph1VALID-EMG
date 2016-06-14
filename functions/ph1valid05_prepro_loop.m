@@ -1,5 +1,9 @@
 funs = {'ph1valid01_prepro', 'ph1valid02_classify'};
 
+a = genpath('C:\Users\chdan\cd\Ph1VALID-EMG\functions');
+
+addpath(a);
+clear fehler
 j = 1;
 for i = 1:46
     if i < 10
@@ -9,7 +13,7 @@ for i = 1:46
     end;
     arg = ['VP' b];
     try
-        ph1valid01_prepro(arg);
+        ph1valid02_classify(arg);
     catch ME
         disp(ME);
         fehler{j,1} = ['VP' b];

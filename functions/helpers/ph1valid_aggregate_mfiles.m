@@ -30,7 +30,9 @@ interesting_vars = {'subjid', 'first_block', 'alter', 'geschlecht', 'nErrors', .
     'AN_prep_meanRT', 'AN_prep_sdRT', 'AN_unprep_meanRT', 'AN_unprep_sdRT', 'HA_prep_meanRT', ...
     'HA_prep_sdRT', 'HA_unprep_meanRT', 'HA_unprep_sdRT', 'AN_meanRT', 'AN_sdRT', 'HA_meanRT', 'HA_sdRT', ...
     'prep_meanRT', 'prep_sdRT', 'unprep_meanRT', 'unprep_sdRT', 'AN_prep_propHit',  'AN_unprep_propHit',...
-    'HA_prep_propHit', 'HA_unprep_propHit'};
+    'HA_prep_propHit', 'HA_unprep_propHit', 'AN_prep_propOm',  'AN_unprep_propOm',...
+    'HA_prep_propOm', 'HA_unprep_propOm', 'AN_prep_propFP',  'AN_unprep_propFP',...
+    'HA_prep_propFP', 'HA_unprep_propFP'};
 
 T = mfile_table(:,interesting_vars);
 
@@ -48,6 +50,12 @@ T_RT = T(:,rt_vars);
 
 hit_vars = {'subjid', 'AN_prep_propHit',  'AN_unprep_propHit', 'HA_prep_propHit', 'HA_unprep_propHit'};
 T_hit = T(:,hit_vars);
+
+om_vars = {'subjid', 'AN_prep_propOm',  'AN_unprep_propOm', 'HA_prep_propOm', 'HA_unprep_propOm'};
+T_om = T(:,om_vars);
+
+fp_vars = {'subjid', 'AN_prep_propFP',  'AN_unprep_propFP', 'HA_prep_propFP', 'HA_unprep_propFP'};
+T_fp = T(:,fp_vars);
 
 %% long
 T2 = stack(T_RT, rt_vars(2:end), 'NewDataVariableName','RT', 'IndexVariableName','Condition')
@@ -76,7 +84,9 @@ val = categorical({'prep'; 'unprep'; 'prep'; 'unprep'});
 factors = table(em,val);
 rm_RT = fitrm(T_RT,'AN_prep_meanRT-HA_unprep_meanRT~1','WithinDesign',factors); 
 rm_hit = fitrm(T_hit, 'AN_prep_propHit-HA_unprep_propHit~1', 'WithinDesign', factors);
+rm_fp = fitrm(T_fp, 'AN_prep_propFP-HA_unprep_propFP~1', 'WithinDesign', factors);
+rm_om = fitrm(T_om, 'AN_prep_propOm-HA_unprep_propOm~1', 'WithinDesign', factors);
 
 myanova = ranova(rm_hit, 'WithinModel','em*val');
 
-plotprofile(rm_hit, 'val', 'Group', 'em');
+plotprofile(rm_fp, 'val', 'Group', 'em');

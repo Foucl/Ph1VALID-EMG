@@ -23,17 +23,19 @@ if nargin < 1
     %subjid = 'VP09';
 end;
 
+
 if ~isLoop
     SubjVars = parsePresLog(subjid, presentationDir);
     SubjInfo = SubjVars;
 else %loop over all files
     availablePresFiles = ls(presentationDir);
-    availablePresFiles = availablePresFiles(5:end,1:4);
+    availablePresFiles = availablePresFiles(4:end,1:4);
+    missing = checkMissing(availablePresFiles);
     existingSubjmfiles = ls(subjmfileDir);
     existingSubjmfiles = existingSubjmfiles(3:end,1:end-11);
     toLoop = setdiff(availablePresFiles, existingSubjmfiles, 'rows');
     for i = 1:size(toLoop,1)
-        SubjInfo(i) = parsePresLog(toLoop(i,:), presentationDir);
+       SubjInfo(i) = parsePresLog(toLoop(i,:), presentationDir);
     end;
 end;
 
@@ -44,12 +46,12 @@ end;
 %now everything is ready inside SubjInfo
 ph1valid_writeToSubjmfile(SubjInfo);
 
-end
+
 
 function [ SubjVars ] = parsePresLog ( subjid, path )
 % reads subjinfo-file and returns variables in structure SubjVars
 %slCharacterEncoding('ISO-8859-1');
-slCharacterEncoding('Windows-1252')
+slCharacterEncoding('Windows-1252');
 presFolder = fullfile(path, subjid);
 FnameObj = dir(fullfile(presFolder, '*subjinfo.tsv'));
 fname = FnameObj.name;
@@ -61,14 +63,31 @@ if isempty(fieldnames(s))
 end
 s = struct2cell(s);
 SubjVars.subjid = subjid;
-SubjVars.date = FnameObj.date;
-for i = 1:length(s{1})
+%SubjVars.date = FnameObj.date;   % not working well; better done via
+%biosemi-header
+for i = 1:size(s{1},1)
     var = strtrim(s{1}(i,:));
-    val = strtrim(s{2}(i,:));
+    val = s{2}(i,:);
+    if ~isnumeric(val)
+        val = strtrim(val);
+    end;
     if isstrprop(val, 'digit')
         val = str2num(val);
+    elseif strcmpi(val, 'nan')
+        val = nan;
     end;
     SubjVars.(var) = val;
 end;
+return;
 
-end
+function [ missing ] = checkMissing(availablePresFiles)
+subj = '';
+for i = 1:46
+    if i < 10
+        id = ['0' num2str(i)];
+    else
+        id = num2str(i);
+    end;
+    subj(i,1:4) = ['VP' id];
+end;
+missing = setdiff(subj,availablePresFiles, 'rows');    

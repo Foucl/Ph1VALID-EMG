@@ -16,6 +16,30 @@ existingSubjmfiles = ls(subjmfileDir);
 existingSubjmfiles = existingSubjmfiles(3:end,1:end-2);
 
 
+% läuft nicht wenn nicht identische felder, daher idee:
+% loop through
+% subfields = {};
+% for i = 1:length(existingSubjmfiles)
+%     eval(existingSubjmfiles(i,:));
+%      % concatenate
+%     subfields = [subfields subjinfo.fieldnames];
+% end;
+% 
+% % find all unique fields
+% allfields = unique(subfields);
+% 
+% % do another loop and compare fieldnames with allfields, and create array of structs
+% for i = 1:length(existingSubjmfiles)
+%     eval(existingSubjmfiles(i,:));
+%      % concatenate
+%     missingFields = setdiff(allfields, subjinfo.fieldnames);
+%      for j = 1:length(missingFields)
+%           subjinfo.(missingFields{j}) = nan;
+%      end;
+% end;
+% 
+% %weiter wie gewohnt
+
 for i = 1:length(existingSubjmfiles)
     eval(existingSubjmfiles(i,:));
     sub(i) = subjinfo;
@@ -23,7 +47,8 @@ end;
 
 mfile_table = struct2table(sub);
 
-interesting_vars = {'subjid', 'first_block', 'alter', 'geschlecht', 'nErrors', ...
+%% generate pretty, informative table
+interesting_vars = {'subjid', 'date', 'emg_data', 'nRpTrials', 'isExcluded', 'first_block', 'happy_letter', 'alter', 'geschlecht', 'nErrors', ...
     'AN_prep_nFpTrials', 'AN_prep_nOmissionTrials', 'AN_prep_nHitTrials', 'AN_unprep_nFpTrials', ...
     'AN_unprep_nOmissionTrials', 'AN_unprep_nHitTrials', 'HA_prep_nFpTrials', 'HA_prep_nOmissionTrials', ...
     'HA_prep_nHitTrials', 'HA_unprep_nFpTrials', 'HA_unprep_nOmissionTrials', 'HA_unprep_nHitTrials', ...
@@ -32,9 +57,19 @@ interesting_vars = {'subjid', 'first_block', 'alter', 'geschlecht', 'nErrors', .
     'prep_meanRT', 'prep_sdRT', 'unprep_meanRT', 'unprep_sdRT', 'AN_prep_propHit',  'AN_unprep_propHit',...
     'HA_prep_propHit', 'HA_unprep_propHit', 'AN_prep_propOm',  'AN_unprep_propOm',...
     'HA_prep_propOm', 'HA_unprep_propOm', 'AN_prep_propFP',  'AN_unprep_propFP',...
-    'HA_prep_propFP', 'HA_unprep_propFP'};
+    'HA_prep_propFP', 'HA_unprep_propFP', 'nFP', 'nOmissions', 'nHits'};
 
 T = mfile_table(:,interesting_vars);
+T.geschlecht = categorical(T.geschlecht, [1, 2], {'male', 'female'});
+T.Properties.VariableNames{'geschlecht'} = 'sex';
+T.Properties.VariableNames{'alter'} = 'age';
+T.happy_letter = upper(T.happy_letter);
+T.propErrors = T.nErrors/200;
+
+qual_vars = {'subjid', 'date', 'emg_data', 'nRpTrials', 'isExcluded', 'nErrors', 'propErrors', 'nFP', 'nOmissions', ...
+    'AN_prep_meanRT', 'AN_unprep_meanRT', 'HA_prep_meanRT', 'HA_unprep_meanRT'};
+T_qual = T(:, qual_vars);
+
 
 %writetable(T, 'subjinfo.csv');
 

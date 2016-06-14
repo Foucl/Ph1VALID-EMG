@@ -29,9 +29,9 @@ validSubjid = @(x) validateattributes(x,{'char'},{'size',[1,4]});
 validRange = @(x) validateattributes(x,{'double'},{'size',[1,2]});
 p.addRequired('subjid',validSubjid);
 
-p.addParameter('sgm',defSgm, validRange)
-p.addParameter('bsl1',defBsl1, validRange)
-p.addParameter('bsl2',defBsl2, validRange)
+p.addParameter('sgm',defSgm, validRange);
+p.addParameter('bsl1',defBsl1, validRange);
+p.addParameter('bsl2',defBsl2, validRange);
 
 p.parse(subjid,varargin{:});
 input = p.Results;
@@ -47,16 +47,41 @@ else %setup has not yet been called
     SessionInfo = ph1valid_setup;
 end;
 
+excl_nodata = ['VP03';'VP07';'VP08'];
+
+if ismember(subjid,excl_nodata,'rows')
+    Info.emg_data = 'no';
+    Info.nRpTrials = 0;
+    Info.isExcluded = 'yes';
+    writeInfo(Info, SessionInfo.emgPreproDir, subjid);
+    error('custom:no_data', 'no EMG data found for %s', subjid);
+end;
+
 %% reading data file
 %%% checking folder
-
-dataFile = ph1valid_validateRP(subjid);
-
-if strcmp(subjid, 'VP14')
-    data = concatVP14(input, SessionInfo);
-else
-    data = basicPrepro(dataFile, input);
+try
+    dataFile = ph1valid_validateRP(subjid);
+catch ME
+   Info.emg_data = 'no';
+   Info.nRpTrials = 0;
+   Info.isExcluded = 'yes';
+   writeInfo(Info, SessionInfo.emgPreproDir, subjid);
+   return;
 end;
+
+Info.emg_data = 'yes';
+
+%if strcmp(subjid, 'VP14')
+ %   data = concatVP14(input, SessionInfo);
+%else
+%end;
+%  try
+      data = basicPrepro(dataFile, input, SessionInfo.emgPreproDir, subjid);
+%  catch ME
+%      disp(ME);
+%      return;
+%  end;
+
 
 
 %%% Create Montages (re-referencing)
@@ -77,7 +102,7 @@ conds = {'AN_prep' 'AN_unprep' 'HA_prep' 'HA_unprep';
         1 1 2 2};
     
 %%% get thresholds
-Info = [];
+%Info = [];
 for i = 1:size(conds,2)
     con = conds{1,i};
     chani = conds{3,i};
@@ -175,21 +200,48 @@ data = ft_preprocessing(cfg, data);
 %     Info.([con '_mean_max_amp']) = mean(amps);
 %     Info.([con '_cleanThreshold']) = 0.25*mean(amps);
 % end;
-
-mkdir(fullfile(SessionInfo.emgPreproDir, subjid));
+Info.isExcluded = 'no';
 save(fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_prepro.mat']), 'data');
+writeInfo(Info, SessionInfo.emgPreproDir, subjid);
 
-ph1valid_writeToSubjmfile(Info, subjid);
 
 
-function data = basicPrepro (dataFile, input)
+
+function data = basicPrepro (dataFile, input, emgPreproDir, subjid)
+Info.emg_data = 'yes';
+hdr = ImportBDFHeader(dataFile);
+Info.date = datetime([hdr.dataDate '_' hdr.dataTime],'InputFormat','dd.MM.yy_HH.mm.ss');
+
 %define trials
 cfg = [];                                   % create an empty variable called cfg
 cfg.trialdef.prestim = input.sgm(1);                 % in seconds
 cfg.trialdef.poststim = input.sgm(2);                  % in seconds
 cfg.trialfun = 'trialfun_ph1valid';
 cfg.dataset = dataFile;
-cfg = ft_definetrial(cfg);
+try
+    cfg = ft_definetrial(cfg);
+catch ME
+    %disp(ME);
+    a = strsplit(ME.identifier, '_');
+    Info.nRpTrials = str2num(a{2});
+    Info.isExcluded = 'yes';
+    writeInfo(Info, emgPreproDir, subjid);
+    rethrow(ME);
+end;
+
+[ ~, lastid ] = lastwarn;
+
+if length(lastid) < 4 
+    Info.nRpTrials = 200;
+    writeInfo(Info, emgPreproDir, subjid);
+elseif strcmp(lastid(1:4),'cust')
+    a = strsplit(lastid, '_');
+    Info.nRpTrials = str2num(a{2});
+    writeInfo(Info, emgPreproDir, subjid);
+else
+    Info.nRpTrials = 200;
+    writeInfo(Info, emgPreproDir, subjid);
+end;
 
 %%% preprocess
 % baseline correction, low pass filter (10Hz, order 2)
@@ -199,6 +251,12 @@ cfg.lpfilter        = 'yes';
 cfg.lpfreq          = 10;
 cfg.lpfiltord = 2; % for BVA (defaults) compatibility
 data = ft_preprocessing(cfg);
+
+
+function writeInfo (Info, emgPreproDir, subjid)
+
+mkdir(fullfile(emgPreproDir, subjid));
+ph1valid_writeToSubjmfile(Info, subjid);
 
 
 function data = concatVP14 (input, SessionInfo)

@@ -3,7 +3,8 @@ funs = {'ph1valid01_prepro', 'ph1valid02_classify'};
 a = genpath('C:\Users\chdan\cd\Ph1VALID-EMG\functions');
 
 addpath(a);
-clear fehler
+
+fehler = [];
 j = 1;
 for i = 1:46
     if i < 10

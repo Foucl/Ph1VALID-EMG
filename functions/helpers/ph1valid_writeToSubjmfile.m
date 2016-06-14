@@ -44,6 +44,9 @@ for i = 1:length(SubjInfo)
              if isempty(val)
                  val = '[]';
              end;
+         elseif isdatetime(val)
+             val = datestr(val);
+             val = ['''' val ''''];
          else
              val = ['''' val ''''];
          end;

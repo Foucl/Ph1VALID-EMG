@@ -23,7 +23,7 @@ end;
 dataFile = fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_prepro.mat']);
 
 if exist(dataFile, 'file')==0
-    ph1valid01_prepro(subjid)
+    ph1valid01_prepro(subjid);
 end;
 
 data = load(dataFile, 'data');

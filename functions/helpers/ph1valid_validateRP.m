@@ -19,16 +19,18 @@ else %setup has not yet been called
 end;
 
 dataDir = fullfile(SessionInfo.emgRawDir, subjid);
-assert(exist(dataDir, 'dir')==7, 'no such directory: %s', dataDir);
+assert(exist(dataDir, 'dir')==7,'custom:no_data', 'no such directory: %s', dataDir);
 
 % get the file
 fname = dir(fullfile(dataDir, '*.bdf'));
-assert(~isempty(fname), 'No *.bdf file found in %s.', dataDir);
+assert(~isempty(fname),'custom:no_data', 'No *.bdf file found in %s.', dataDir);
 
 if length(fname) > 1
     warning('multiple *.bdf files found, caution advised'); %TODO: automatically concatenate the files
 end;
-fname = fname(find(max([fname.bytes]))).name;  % take the largest file
+[~,idx] = max([fname.bytes]);
+fname = fname(idx).name;  % take the largest file
+%if strcmp(subjid, 'VP01')
 dataFile = fullfile(dataDir, fname);
     
 

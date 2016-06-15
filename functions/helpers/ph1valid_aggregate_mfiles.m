@@ -14,6 +14,8 @@ subjmfileDir = SessionInfo.subjmfileDir;
 
 existingSubjmfiles = ls(subjmfileDir);
 existingSubjmfiles = existingSubjmfiles(3:end,1:end-2);
+excl = ['VP03_subjinfo';'VP07_subjinfo';'VP08_subjinfo';'VP11_subjinfo';'VP14_subjinfo'];
+existingSubjmfiles = setdiff(existingSubjmfiles, excl, 'rows');
 
 normalizeStructs(existingSubjmfiles)
 
@@ -34,7 +36,8 @@ interesting_vars = {'subjid', 'date', 'emg_data', 'nRpTrials', 'isExcluded', 'fi
     'prep_meanRT', 'prep_sdRT', 'unprep_meanRT', 'unprep_sdRT', 'AN_prep_propHit',  'AN_unprep_propHit',...
     'HA_prep_propHit', 'HA_unprep_propHit', 'AN_prep_propOm',  'AN_unprep_propOm',...
     'HA_prep_propOm', 'HA_unprep_propOm', 'AN_prep_propFP',  'AN_unprep_propFP',...
-    'HA_prep_propFP', 'HA_unprep_propFP', 'nFP', 'nOmissions', 'nHits'};
+    'HA_prep_propFP', 'HA_unprep_propFP', 'nFP', 'nOmissions', 'nHits', 'AN_prep_mean_max_amp','AN_unprep_mean_max_amp', ...
+    'HA_prep_mean_max_amp', 'HA_unprep_mean_max_amp'};
 
 T = mfile_table(:,interesting_vars);
 T.geschlecht = categorical(T.geschlecht, [1, 2], {'male', 'female'});
@@ -44,7 +47,8 @@ T.happy_letter = upper(T.happy_letter);
 T.propErrors = T.nErrors/200;
 
 qual_vars = {'subjid', 'date', 'emg_data', 'nRpTrials', 'isExcluded', 'nErrors', 'propErrors', 'nFP', 'nOmissions', ...
-    'AN_prep_meanRT', 'AN_unprep_meanRT', 'HA_prep_meanRT', 'HA_unprep_meanRT'};
+    'AN_prep_meanRT', 'AN_unprep_meanRT', 'HA_prep_meanRT', 'HA_unprep_meanRT', 'AN_prep_mean_max_amp','AN_unprep_mean_max_amp', ...
+    'HA_prep_mean_max_amp', 'HA_unprep_mean_max_amp'};
 T_qual = T(:, qual_vars);
 
 
@@ -99,7 +103,7 @@ rm_hit = fitrm(T_hit, 'AN_prep_propHit-HA_unprep_propHit~1', 'WithinDesign', fac
 rm_fp = fitrm(T_fp, 'AN_prep_propFP-HA_unprep_propFP~1', 'WithinDesign', factors);
 rm_om = fitrm(T_om, 'AN_prep_propOm-HA_unprep_propOm~1', 'WithinDesign', factors);
 
-myanova = ranova(rm_hit, 'WithinModel','em*val');
+myanova = ranova(rm_RT, 'WithinModel','em*val');
 
 %plotprofile(rm_fp, 'val', 'Group', 'em');
 
@@ -122,8 +126,7 @@ title('Proportion Omissions')
 
 function normalizeStructs(existingSubjmfiles)
 
-% läuft nicht wenn nicht identische felder, daher idee:
-% loop through
+
 subfields = {};
 for i = 1:length(existingSubjmfiles)
     eval(existingSubjmfiles(i,:));

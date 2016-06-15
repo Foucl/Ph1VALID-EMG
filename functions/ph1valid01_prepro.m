@@ -5,7 +5,7 @@ function [ data, Info ] = ph1valid01_prepro( subjid, varargin )
 %   - subjid (e.g. 'VP07')
 %   - cfg.sgm: segment begin/end (default [2 2.5])
 %   - cfg.bsl1: baseline period for rejection of trials with early activity (default [-2 -1.8])
-%   - cfg.bsl2: baseline period for actual classification of trials (default [-0.2 0])
+%   - cfg.bsl2: baseline period for actual classification of trials (default [-0.1 0])
 %
 %
 %   returns
@@ -76,7 +76,7 @@ Info.emg_data = 'yes';
 %else
 %end;
 %  try
-      data = basicPrepro(dataFile, input, SessionInfo.emgPreproDir, subjid);
+      [data, data_bl2] = basicPrepro(dataFile, input, SessionInfo.emgPreproDir, subjid);
 %  catch ME
 %      disp(ME);
 %      return;
@@ -92,9 +92,11 @@ bipolar.tra       = [
        0  0 +1 -1
     ];
 data = ft_apply_montage(data, bipolar);
+data_bl2 = ft_apply_montage(data_bl2, bipolar);
 
 %%% rectify
 data.trial = cellfun(@abs,data.trial, 'UniformOutput', false);
+data_bl2.trial = cellfun(@abs,data_bl2.trial, 'UniformOutput', false);
 
 %% collect some basic information on the dataset
 conds = {'AN_prep' 'AN_unprep' 'HA_prep' 'HA_unprep';
@@ -181,12 +183,14 @@ Info.cleanTrials = setdiff(1:size(data.trialinfo, 1),allErrors);
 cfg = [];
 cfg.trials = Info.cleanTrials;
 data = ft_selectdata(cfg, data);
+data_bl2 = ft_selectdata(cfg, data_bl2);
+data_bl2.trialinfo = data.trialinfo;
 
 %% re-preprocess data with different baseline (immediately preceding target)
-cfg = [];
-cfg.demean          = 'yes';
-cfg.baselinewindow  = input.bsl2;
-data = ft_preprocessing(cfg, data);
+% cfg = [];
+% cfg.demean          = 'yes';
+% cfg.baselinewindow  = input.bsl2;
+% data = ft_preprocessing(cfg, data);
 
 %% recalculate clean thresholds
 % for i = 1:size(conds,2)
@@ -200,6 +204,7 @@ data = ft_preprocessing(cfg, data);
 %     Info.([con '_mean_max_amp']) = mean(amps);
 %     Info.([con '_cleanThreshold']) = 0.25*mean(amps);
 % end;
+data = data_bl2;
 Info.isExcluded = 'no';
 save(fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_prepro.mat']), 'data');
 writeInfo(Info, SessionInfo.emgPreproDir, subjid);
@@ -207,7 +212,7 @@ writeInfo(Info, SessionInfo.emgPreproDir, subjid);
 
 
 
-function data = basicPrepro (dataFile, input, emgPreproDir, subjid)
+function [data, data_bl2] = basicPrepro (dataFile, input, emgPreproDir, subjid)
 Info.emg_data = 'yes';
 hdr = ImportBDFHeader(dataFile);
 Info.date = datetime([hdr.dataDate '_' hdr.dataTime],'InputFormat','dd.MM.yy_HH.mm.ss');
@@ -251,6 +256,8 @@ cfg.lpfilter        = 'yes';
 cfg.lpfreq          = 10;
 cfg.lpfiltord = 2; % for BVA (defaults) compatibility
 data = ft_preprocessing(cfg);
+cfg.baselinewindow = input.bsl2;
+data_bl2 = ft_preprocessing(cfg);
 
 
 function writeInfo (Info, emgPreproDir, subjid)

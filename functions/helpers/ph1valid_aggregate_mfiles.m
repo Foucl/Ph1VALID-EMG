@@ -15,30 +15,7 @@ subjmfileDir = SessionInfo.subjmfileDir;
 existingSubjmfiles = ls(subjmfileDir);
 existingSubjmfiles = existingSubjmfiles(3:end,1:end-2);
 
-
-% läuft nicht wenn nicht identische felder, daher idee:
-% loop through
-% subfields = {};
-% for i = 1:length(existingSubjmfiles)
-%     eval(existingSubjmfiles(i,:));
-%      % concatenate
-%     subfields = [subfields subjinfo.fieldnames];
-% end;
-% 
-% % find all unique fields
-% allfields = unique(subfields);
-% 
-% % do another loop and compare fieldnames with allfields, and create array of structs
-% for i = 1:length(existingSubjmfiles)
-%     eval(existingSubjmfiles(i,:));
-%      % concatenate
-%     missingFields = setdiff(allfields, subjinfo.fieldnames);
-%      for j = 1:length(missingFields)
-%           subjinfo.(missingFields{j}) = nan;
-%      end;
-% end;
-% 
-% %weiter wie gewohnt
+normalizeStructs(existingSubjmfiles)
 
 for i = 1:length(existingSubjmfiles)
     eval(existingSubjmfiles(i,:));
@@ -124,4 +101,48 @@ rm_om = fitrm(T_om, 'AN_prep_propOm-HA_unprep_propOm~1', 'WithinDesign', factors
 
 myanova = ranova(rm_hit, 'WithinModel','em*val');
 
-plotprofile(rm_fp, 'val', 'Group', 'em');
+%plotprofile(rm_fp, 'val', 'Group', 'em');
+
+figure
+subplot(2,2,1)       % add first plot in 2 x 1 grid
+plotprofile(rm_RT, 'val', 'Group', 'em');
+title('Reaction Times')
+
+subplot(2,2,2)       % add second plot in 2 x 1 grid
+plotprofile(rm_hit, 'val', 'Group', 'em');       % plot using + markers
+title('Proportion Hits')
+
+subplot(2,2,3)       % add second plot in 2 x 1 grid
+plotprofile(rm_fp, 'val', 'Group', 'em');       % plot using + markers
+title('Proportion False Positives')
+
+subplot(2,2,4)       % add second plot in 2 x 1 grid
+plotprofile(rm_om, 'val', 'Group', 'em');       % plot using + markers
+title('Proportion Omissions')
+
+function normalizeStructs(existingSubjmfiles)
+
+% läuft nicht wenn nicht identische felder, daher idee:
+% loop through
+subfields = {};
+for i = 1:length(existingSubjmfiles)
+    eval(existingSubjmfiles(i,:));
+     % concatenate
+    subfields = [subfields fieldnames(subjinfo)];
+end;
+% 
+% % find all unique fields
+allfields = unique(subfields);
+% 
+% % do another loop and compare fieldnames with allfields, and create array of structs
+for i = 1:length(existingSubjmfiles)
+    eval(existingSubjmfiles(i,:));
+     % concatenate
+    missingFields = setdiff(allfields, fieldnames(subjinfo));
+     for j = 1:length(missingFields)
+          subjinfo.(missingFields{j}) = nan;
+     end;
+     ph1valid_writeToSubjmfile(subjinfo, subjinfo.subjid);
+end;
+% 
+% %weiter wie gewohnt

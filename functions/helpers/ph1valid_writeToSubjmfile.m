@@ -5,14 +5,8 @@ function [ output_args ] = ph1valid_writeToSubjmfile( SubjInfo, subjid )
 %   checks if subjmfile already exists and, if not, asks whether or not to
 %   create it (from presentation-file)
 
-global Sess;
-    
-if ~isempty(Sess);
-    SessionInfo = Sess;
-else %setup has not yet been called
-    clear Sess;
-    SessionInfo = ph1valid_setup;
-end;
+SessionInfo = ph1valid_setup;
+
 subjmfileDir = SessionInfo.subjmfileDir;
 mult = false;
 if nargin < 2
@@ -39,8 +33,8 @@ for i = 1:length(SubjInfo)
          var = ['subjinfo.' fieldNames{iField}];
          val = SubjInfo(i).(fieldNames{iField});
          if isnumeric(val)
-             val = num2str(val);
-             val = ['[' val ']'];
+             val = num2str(val(:)');
+             val = sprintf('[ %s ]', val);
              if isempty(val)
                  val = '[]';
              end;

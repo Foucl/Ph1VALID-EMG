@@ -18,202 +18,99 @@ function [ data, Info ] = ph1valid01_prepro( subjid, varargin )
 
 
 %% parsing inputs
+if exist('subjid','var') == 0
+    warning('No subjid provided; using VP16 for testing purposes');
+    subjid = 'VP16';
+    warn = true;
+else
+    warn = false;
+end;
 
-defSgm = [2 2.5];
-defBsl1 = [-2 -1.8];
-defBsl2 = [-0.1 0];
+[input, subjid] =  checkInputs(subjid, varargin{:});
 
-p=inputParser;
-
-validSubjid = @(x) validateattributes(x,{'char'},{'size',[1,4]});
-validRange = @(x) validateattributes(x,{'double'},{'size',[1,2]});
-p.addRequired('subjid',validSubjid);
-
-p.addParameter('sgm',defSgm, validRange);
-p.addParameter('bsl1',defBsl1, validRange);
-p.addParameter('bsl2',defBsl2, validRange);
-
-p.parse(subjid,varargin{:});
-input = p.Results;
 
 %% checking Setup
 
-global Sess;
-    
-if ~isempty(Sess);
-    SessionInfo = Sess;
-else %setup has not yet been called
-    clear Sess;
-    SessionInfo = ph1valid_setup;
-end;
+SessionInfo = ph1valid_setup;
 
+%% get rid of exluded subjects
 excl_nodata = ['VP03';'VP07';'VP08'];
 
 if ismember(subjid,excl_nodata,'rows')
     Info.emg_data = 'no';
     Info.nRpTrials = 0;
     Info.isExcluded = 'yes';
-    writeInfo(Info, SessionInfo.emgPreproDir, subjid);
+    ph1valid_writeToSubjmfile(Info, subjid);
     error('custom:no_data', 'no EMG data found for %s', subjid);
 end;
 
-%% reading data file
-%%% checking folder
+%% reading data file and check if EMG data is there
+
 try
-    dataFile = ph1valid_validateRP(subjid);
-catch ME
+    dataFile = ph1valid_validate(subjid);
+catch
    Info.emg_data = 'no';
    Info.nRpTrials = 0;
    Info.isExcluded = 'yes';
-   writeInfo(Info, SessionInfo.emgPreproDir, subjid);
+   ph1valid_writeToSubjmfile(Info, subjid);
    return;
 end;
 
 Info.emg_data = 'yes';
 
-%if strcmp(subjid, 'VP14')
- %   data = concatVP14(input, SessionInfo);
-%else
-%end;
-%  try
-      [data, data_bl2] = basicPrepro(dataFile, input, SessionInfo.emgPreproDir, subjid);
-%  catch ME
-%      disp(ME);
-%      return;
-%  end;
-
-
-
-%%% Create Montages (re-referencing)
-bipolar.labelorg  = {'EXG1', 'EXG2', 'EXG3', 'EXG4'};
-bipolar.labelnew  = {'Cor', 'Zyg'};
-bipolar.tra       = [
-      +1 -1  0  0
-       0  0 +1 -1
-    ];
-data = ft_apply_montage(data, bipolar);
-data_bl2 = ft_apply_montage(data_bl2, bipolar);
-
-%%% rectify
-data.trial = cellfun(@abs,data.trial, 'UniformOutput', false);
-data_bl2.trial = cellfun(@abs,data_bl2.trial, 'UniformOutput', false);
+%% Preprocessing (demean1, demean2, detrend, filter, segment, rectify, ...
+[ data ] = basicPrepro(dataFile, input, SessionInfo.emgPreproDir, subjid);
 
 %% collect some basic information on the dataset
 conds = {'AN_prep' 'AN_unprep' 'HA_prep' 'HA_unprep';
         51 61 52 62;
         1 1 2 2};
     
-%%% get thresholds
-%Info = [];
-for i = 1:size(conds,2)
-    con = conds{1,i};
-    chani = conds{3,i};
-    trg = conds{2,i};
-    indices = find(data.trialinfo == trg);
-    curdat = data.trial(indices);
-    amps{i} = cellfun(@(x) max(x(chani,:)), curdat);
-    if mod(i,2) == 0
-        j = i-1;
-    else
-        j = i;
-    end;
-    Info.([con '_max_amp']) = max(amps{j});
-    Info.([con '_mean_max_amp']) = mean(amps{j});
-    Info.([con '_Threshold']) = 0.25*mean(amps{j});
-end;
+% get thresholds and Amplitudes
 
-%%% classify early activity
-nErrors = 0;
-allErrors = [];
-htype=[];
-for i = 1:size(conds, 2)
-    con = conds{1,i};
-    trg = conds{2,i};
-    chani = conds{3,i};
-    th = Info.([con '_Threshold']);
-    indices = find(data.trialinfo == trg);
-    curdat = data.trial(indices);
-    curtime = data.time(indices);
-    %cursample = data.sampleinfo(indices);
-    
-    switch i
-       case 1
-           th_o = Info.([conds{1,3} '_Threshold']);
-           chani_o = 2;
-       case 2
-           th_o = Info.([conds{1,4} '_Threshold']);
-           chani_o = 2;
-       case 3
-           th_o = Info.([conds{1,1} '_Threshold']);
-           chani_o = 1;
-       case 4
-           th_o = Info.([conds{1,2} '_Threshold']);
-           chani_o = 1;
-    end;
-    
-    errorTrials = [];
-    for j = 1:length(curdat)
-        idx = find(curdat{j}(chani,:) >= th, 1);  % indices of 'hits': => threshold in correct channel
-        idx_o = find(curdat{j}(chani_o,:) >=th_o,1); % indices of hits-in-wrong-channel: wrong emotions shown
-        if (curtime{j}(idx_o) < 0) & (-0.5 < curtime{j}(idx_o))   % current trial is wrong
-            errorTrials = [errorTrials indices(j)];
-            data.trialinfo(indices(j),2) = 69;
-        elseif (curtime{j}(idx) < 0) & (-0.5 < curtime{j}(idx))
-            errorTrials = [errorTrials indices(j)];
-            data.trialinfo(indices(j),2) = 60;
-        else
-            data.trialinfo(indices(j),2) = nan;
-        end;
-    end;
-    Info.([con '_errorTrials']) = errorTrials;
-    Info.([con '_nErrorTrials']) = length(errorTrials);
-    allErrors = [allErrors errorTrials];
-    nErrors = nErrors + length(errorTrials);
-end;
+[ Info ] = getThresholds(data{1}, Info, conds, '');
 
+%% find errors (reactions ocurring prior to target stimulus)
+
+[ Info, data{1} ] = getErrors(data{1}, Info, conds);
+
+data{2}.trialinfo = data{1}.trialinfo;
+data = data{2};
 % second column data.trialinfo: trialtype
 % 60 = early activity in correct channel
 % 69 = early acitivity in incorrect channel
 
-Info.nErrors = nErrors;
-Info.allErrors = allErrors;
 
 %% remove error trials from dataset
-Info.cleanTrials = setdiff(1:size(data.trialinfo, 1),allErrors);
+Info.cleanTrials = setdiff(1:size(data.trialinfo, 1),Info.allErrors);
 cfg = [];
 cfg.trials = Info.cleanTrials;
+
 data = ft_selectdata(cfg, data);
 data.cfg.event = data.cfg.previous.event;
-data_bl2 = ft_selectdata(cfg, data_bl2);
-data_bl2.trialinfo = data.trialinfo;
 
-%% re-preprocess data with different baseline (immediately preceding target)
-% cfg = [];
-% cfg.demean          = 'yes';
-% cfg.baselinewindow  = input.bsl2;
-% data = ft_preprocessing(cfg, data);
+%% recalculate thresholds
+[ Info ] = getThresholds(data, Info, conds, 'clean');
 
-%% recalculate clean thresholds
-% for i = 1:size(conds,2)
-%     con = conds{1,i};
-%     chani = conds{3,i};
-%     trg = conds{2,i};
-%     indices = find(data.trialinfo == trg);
-%     curdat = data.trial(indices);
-%     amps = cellfun(@(x) max(x(chani,:)), curdat);
-%     Info.([con '_max_amp']) = max(amps);
-%     Info.([con '_mean_max_amp']) = mean(amps);
-%     Info.([con '_cleanThreshold']) = 0.25*mean(amps);
-% end;
-data = data_bl2;
 Info.isExcluded = 'no';
-save(fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_prepro.mat']), 'data');
-writeInfo(Info, SessionInfo.emgPreproDir, subjid);
+
+while true
+    try
+        save(fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_prepro.mat']), 'data');
+        break;
+    catch
+        mkdir(fullfile(SessionInfo.emgPreproDir, subjid));
+    end;
+end;
+
+ph1valid_writeToSubjmfile(Info, subjid);
+
+if warn
+    warning('No subjid provided; used VP16 for testing purposes.');
+end;
 
 
-
-
-function [data, data_bl2] = basicPrepro (dataFile, input, emgPreproDir, subjid)
+function [ data ] = basicPrepro (dataFile, input, emgPreproDir, subjid)
 Info.emg_data = 'yes';
 hdr = ImportBDFHeader(dataFile);
 Info.date = datetime([hdr.dataDate '_' hdr.dataTime],'InputFormat','dd.MM.yy_HH.mm.ss');
@@ -229,9 +126,9 @@ try
 catch ME
     %disp(ME);
     a = strsplit(ME.identifier, '_');
-    Info.nRpTrials = str2num(a{2});
+    Info.nRpTrials = str2double(a{2});
     Info.isExcluded = 'yes';
-    writeInfo(Info, emgPreproDir, subjid);
+    ph1valid_writeToSubjmfile(Info, subjid);
     rethrow(ME);
 end;
 
@@ -239,14 +136,14 @@ end;
 
 if length(lastid) < 4 
     Info.nRpTrials = 200;
-    writeInfo(Info, emgPreproDir, subjid);
+    ph1valid_writeToSubjmfile(Info, subjid);
 elseif strcmp(lastid(1:4),'cust')
     a = strsplit(lastid, '_');
-    Info.nRpTrials = str2num(a{2});
-    writeInfo(Info, emgPreproDir, subjid);
+    Info.nRpTrials = str2double(a{2});
+    ph1valid_writeToSubjmfile(Info, subjid);
 else
     Info.nRpTrials = 200;
-    writeInfo(Info, emgPreproDir, subjid);
+    ph1valid_writeToSubjmfile(Info, subjid);
 end;
 
 %%% preprocess
@@ -256,29 +153,148 @@ cfg.baselinewindow  = input.bsl1;
 cfg.lpfilter        = 'yes';
 cfg.lpfreq          = 10;
 cfg.lpfiltord = 2; % for BVA (defaults) compatibility
-data = ft_preprocessing(cfg);
+data{1} = ft_preprocessing(cfg);
 cfg.baselinewindow = input.bsl2;
-data_bl2 = ft_preprocessing(cfg);
+data{2} = ft_preprocessing(cfg);
 
+bipolar.labelorg  = {'EXG1', 'EXG2', 'EXG3', 'EXG4'};
+bipolar.labelnew  = {'Cor', 'Zyg'};
+bipolar.tra       = [
+      +1 -1  0  0
+       0  0 +1 -1
+    ];
 
-function writeInfo (Info, emgPreproDir, subjid)
+data = cellfun(@(x) ft_apply_montage(x, bipolar), data, 'UniformOutput', false);
 
-mkdir(fullfile(emgPreproDir, subjid));
-ph1valid_writeToSubjmfile(Info, subjid);
+for i = 1:length(data)
+    data{i}.trial = cellfun(@abs,data{i}.trial, 'UniformOutput', false);
+end;
+function [ dataFile ] = ph1valid_validate( subjid )
+%PH1VALID_VALIDATERP Checks Validity of RP segment in EMG data
+%   returns file handle
 
+p=inputParser;
 
-function data = concatVP14 (input, SessionInfo)
-dataDir = fullfile(SessionInfo.emgRawDir, 'VP14');
+validSubjid = @(x) validateattributes(x,{'char'},{'size',[1,4]});
+p.addRequired('subjid',validSubjid);
+
+p.parse(subjid);
+
+global Sess;
+    
+if ~isempty(Sess);
+    SessionInfo = Sess;
+else %setup has not yet been called
+    clear Sess;
+    SessionInfo = ph1valid_setup;
+end;
+
+% get the folder
+dataDir = fullfile(SessionInfo.emgRawDir, subjid);
+assert(exist(dataDir, 'dir')==7,'custom:no_data', 'no such directory: %s', dataDir);
+
+% get the file
 fname = dir(fullfile(dataDir, '*.bdf'));
+assert(~isempty(fname),'custom:no_data', 'No *.bdf file found in %s.', dataDir);
 
-dataFile = [];
-dataFile.A = fullfile(dataDir, fname(1).name);
-dataFile.B = fullfile(dataDir, fname(2).name);
+if length(fname) > 1
+    warning('multiple *.bdf files found, caution advised'); %TODO: automatically concatenate the files
+end;
+[~,idx] = max([fname.bytes]);
+fname = fname(idx).name;  % take the largest file
+%if strcmp(subjid, 'VP01')
+dataFile = fullfile(dataDir, fname);
 
-dat.A = basicPrepro(dataFile.A, input);
-dat.B = basicPrepro(dataFile.B, input);
+function [input, subjid] =  checkInputs(subjid, varargin)
 
-data = ft_appenddata([], dat.A, dat.B);
+defSgm = [2 2.5];
+defBsl1 = [-2 -1.8];
+defBsl2 = [-0.1 0];
+defReThreshold = true;
+
+p=inputParser;
+
+validSubjid = @(x) validateattributes(x,{'char'},{'size',[1,4]});
+validRange = @(x) validateattributes(x,{'double'},{'size',[1,2]});
+validBool = @(x) validateattributes(x, {'logical'});
+
+p.addRequired('subjid', validSubjid);
+
+p.addParameter('sgm',defSgm, validRange);
+p.addParameter('bsl1',defBsl1, validRange);
+p.addParameter('bsl2',defBsl2, validRange);
+p.addParameter('reThreshold',defReThreshold, validBool);
+
+p.parse(subjid, varargin{:});
+input = p.Results;
+subjid = input.subjid;
 
 
+function [ Info ] = getThresholds(data, Info, conds, type)
+% recalculate clean thresholds
+for i = 1:size(conds,2)
+    con = conds{1,i};
+    chani = conds{3,i};
+    trg = conds{2,i};
+    indices = data.trialinfo == trg;
+    curdat = data.trial(indices);
+    amps = cellfun(@(x) max(x(chani,:)), curdat);
+    Info.([con '_' type 'MaxAmp']) = max(amps);
+    Info.([con '_' type 'MeanMaxAmp']) = mean(amps);
+    Info.([con '_' type 'Threshold']) = 0.25*mean(amps);
+end;
 
+function [ Info, data ] = getErrors(data, Info, conds)
+nErrors = 0;
+ch_wrong = [conds{3,[3 4 1 2]}];
+con_wrong = conds(1, [3 4 1 2]);
+allErrors = cell(1,4);
+for i = 1:size(conds, 2)
+    con = conds{1,i};
+    trg = conds{2,i};
+    chani = conds{3,i};
+    chani_o = ch_wrong(i);
+    th = Info.([con '_Threshold']);
+    th_o = Info.([con_wrong{i} '_Threshold']);
+    indices = find(data.trialinfo == trg);
+    curdat = data.trial(indices);
+    curtime = data.time(indices);
+    
+    errorTrials = nan(80,1);
+    k = 1;
+    for j = 1:length(curdat)
+        idx = find(curdat{j}(chani,:) >= th, 1);  % indices of 'hits': => threshold in correct channel
+        idx_o = find(curdat{j}(chani_o,:) >=th_o,1); % indices of hits-in-wrong-channel: wrong emotions shown
+        if ~isempty(idx_o) && (curtime{j}(idx_o) < 0) && (-0.5 < curtime{j}(idx_o))   % current trial is wrong
+            errorTrials(k) = indices(j);
+            data.trialinfo(indices(j),2) = 69;
+            k = k +1;
+        elseif ~isempty(idx) && (curtime{j}(idx) < 0) && (-0.5 < curtime{j}(idx))
+            errorTrials(k) = indices(j);
+            data.trialinfo(indices(j),2) = 60;
+            k = k+1;
+        else
+            data.trialinfo(indices(j),2) = nan;
+        end;
+    end;
+    errorTrials(isnan(errorTrials)) = [];
+    Info.([con '_errorTrials']) = errorTrials.';
+    Info.([con '_nErrorTrials']) = length(errorTrials);
+    allErrors{i} = errorTrials';
+    nErrors = nErrors + length(errorTrials);
+end;
+Info.nErrors = nErrors;
+Info.allErrors = [allErrors{:}];
+
+% function data = concatVP14 (input, SessionInfo)
+% dataDir = fullfile(SessionInfo.emgRawDir, 'VP14');
+% fname = dir(fullfile(dataDir, '*.bdf'));
+% 
+% dataFile = [];
+% dataFile.A = fullfile(dataDir, fname(1).name);
+% dataFile.B = fullfile(dataDir, fname(2).name);
+% 
+% dat.A = basicPrepro(dataFile.A, input);
+% dat.B = basicPrepro(dataFile.B, input);
+% 
+% data = ft_appenddata([], dat.A, dat.B);

@@ -1,41 +1,41 @@
-function [ SubjInfo ] = ph1valid_getSubjFiles( subjid )
+function [ SubjInfo ] = ph1valid_getSubjFiles( force )
 %PH1VALID_GET Summary of this function goes here
 %   Detailed explanation goes here
 
-isLoop = false;
+isLoop = true;
+subjid = 'VP09';
 
-
-global Sess;
-    
-if ~isempty(Sess);
-    SessionInfo = Sess;
-else %setup has not yet been called
-    clear Sess;
-    SessionInfo = ph1valid_setup;
-end;
+SessionInfo = ph1valid_setup;
 
 presentationDir = SessionInfo.presentationDir;
 outDir = SessionInfo.outDir;
 subjmfileDir = SessionInfo.subjmfileDir;
 
 if nargin < 1
-    isLoop = true;
+    force = false;
     %subjid = 'VP09';
 end;
 
+% SubjVars = parsePresLog(subjid, presentationDir);
+% SubjInfoTemplate = structfun(@(x) (nan),SubjInfoTemplate, 'UniformOutput',0);
+% save('SubjInfoTemplate.mat', 'SubjInfoTemplate');
+load('SubjInfoTemplate.mat');
 
 if ~isLoop
-    SubjVars = parsePresLog(subjid, presentationDir);
+    SubjVars = parsePresLog(subjid, presentationDir, SubjInfoTemplate);
     SubjInfo = SubjVars;
 else %loop over all files
     availablePresFiles = ls(presentationDir);
     availablePresFiles = availablePresFiles(4:end,1:4);
-    missing = checkMissing(availablePresFiles);
     existingSubjmfiles = ls(subjmfileDir);
     existingSubjmfiles = existingSubjmfiles(3:end,1:end-11);
-    toLoop = setdiff(availablePresFiles, existingSubjmfiles, 'rows');
+    if force==false 
+        toLoop = setdiff(availablePresFiles, existingSubjmfiles, 'rows');
+    else
+        toLoop = availablePresFiles;
+    end;
     for i = 1:size(toLoop,1)
-       SubjInfo(i) = parsePresLog(toLoop(i,:), presentationDir);
+       SubjInfo(i) = parsePresLog(toLoop(i,:), presentationDir, SubjInfoTemplate);
     end;
 end;
 
@@ -45,10 +45,13 @@ if ~exist('SubjInfo', 'var')
 end;
 %now everything is ready inside SubjInfo
 ph1valid_writeToSubjmfile(SubjInfo);
+if isLoop
+    clear SubjInfo;
+end;
 
 
 
-function [ SubjVars ] = parsePresLog ( subjid, path )
+function [ SubjVars ] = parsePresLog ( subjid, path, template )
 % reads subjinfo-file and returns variables in structure SubjVars
 %slCharacterEncoding('ISO-8859-1');
 slCharacterEncoding('Windows-1252');
@@ -62,6 +65,7 @@ if isempty(fieldnames(s))
     error(['Problem with subject ' subjid]);
 end
 s = struct2cell(s);
+SubjVars = template;
 SubjVars.subjid = subjid;
 %SubjVars.date = FnameObj.date;   % not working well; better done via
 %biosemi-header
@@ -80,14 +84,3 @@ for i = 1:size(s{1},1)
 end;
 return;
 
-function [ missing ] = checkMissing(availablePresFiles)
-subj = '';
-for i = 1:46
-    if i < 10
-        id = ['0' num2str(i)];
-    else
-        id = num2str(i);
-    end;
-    subj(i,1:4) = ['VP' id];
-end;
-missing = setdiff(subj,availablePresFiles, 'rows');    

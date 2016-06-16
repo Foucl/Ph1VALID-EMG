@@ -6,6 +6,17 @@ if nargin < 1
     context = 'local';
 end;
 
+%% check if setup was already run
+global Sess;
+    
+if ~isempty(Sess);
+    SessionInfo = Sess;
+    return;
+else %setup has not yet been called
+    clear Sess; 
+end;
+
+%% deactivate annoying warnings
 
 warning('off', 'MATLAB:dispatcher:pathWarning');
 warning('off', 'MATLAB:MKDIR:DirectoryExists');
@@ -72,6 +83,7 @@ S.emgPreproDir = fullfile(S.outDir, 'EMG_preprocessed');
 S.subjmfileDir = fullfile(S.outDir, 'subjmfiles');
 
 [S.projectDir, ~, ~] = fileparts(mfilename('fullpath'));
+[S.projectBaseDir, ~, ~] = fileparts(S.projectDir);
 
 addpath(fullfile(S.subjmfileDir));
 addpath(genpath(fullfile(S.projectDir)));

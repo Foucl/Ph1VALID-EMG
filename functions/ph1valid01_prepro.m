@@ -183,6 +183,7 @@ Info.cleanTrials = setdiff(1:size(data.trialinfo, 1),allErrors);
 cfg = [];
 cfg.trials = Info.cleanTrials;
 data = ft_selectdata(cfg, data);
+data.cfg.event = data.cfg.previous.event;
 data_bl2 = ft_selectdata(cfg, data_bl2);
 data_bl2.trialinfo = data.trialinfo;
 

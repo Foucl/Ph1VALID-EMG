@@ -70,10 +70,11 @@ S.emgRawDir = fullfile(S.dataDir, 'EMG_raw');
 S.presentationDir = fullfile(S.dataDir, 'Presentation-logfiles');
 S.emgPreproDir = fullfile(S.outDir, 'EMG_preprocessed');
 S.subjmfileDir = fullfile(S.outDir, 'subjmfiles');
-S.projectDir = mfilename('fullpath');
+
+[S.projectDir, ~, ~] = fileparts(mfilename('fullpath'));
 
 addpath(fullfile(S.subjmfileDir));
-addpath(fullfile(S.projectDir));
+addpath(genpath(fullfile(S.projectDir)));
 addpath(fullfile(S.toolboxDir, 'fieldtrip'));
 addpath(fullfile(S.toolboxDir, 'fieldtrip', 'fileio'));
 addpath(fullfile(S.projectDir, 'helpers'));

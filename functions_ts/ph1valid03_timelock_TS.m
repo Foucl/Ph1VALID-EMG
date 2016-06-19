@@ -1,4 +1,4 @@
-function [ ga, fig ] = ph1valid03_timelock (forceInd, forceGa)
+function [ ga, fig ] = ph1valid03_timelock_TS (forceInd, forceGa)
 %% Timelock
 
 if nargin < 1
@@ -13,8 +13,6 @@ SessionInfo = ph1valid_setup;
 
 [ ga, ~ ]  = aggregateTimelocks (SessionInfo, forceInd, forceGa);
 
-global ft_default
-ft_default.showcallinfo = 'no';
 
 cfg = [];
 cfg.xlim = [-0.1 2.5];
@@ -23,15 +21,19 @@ cfg.linestyle = {'-', '--', '-', '--'};
 cfg.graphcolor = 'kkmm';
 cfg.linewidth = 0.8;
 
+inner_padding = [0.07, 0.06];
 figure;
-subplot(1,2,1, 'align');
-ft_singleplotER(cfg, ga.AN_prep_cor, ga.AN_unprep_cor, ga.HA_prep_cor, ga.HA_unprep_cor);
+subplot_tight(1,2,1, inner_padding);
+ft_singleplotER(cfg, ga.AN_rep_cor, ga.AN_swt_cor, ga.HA_rep_cor, ga.HA_swt_cor);
 title('Cor');
-subplot(1,2,2, 'align');
-ft_singleplotER(cfg, ga.HA_prep_zyg, ga.HA_unprep_zyg, ga.AN_prep_zyg, ga.AN_unprep_zyg);
-legend({'anger prepared', 'anger unprepared', 'happiness prepared', 'happiness unprepared'}, 'Location', 'NorthEast');
+subplot_tight(1,2,2, inner_padding);
+ft_singleplotER(cfg, ga.HA_rep_zyg, ga.HA_swt_zyg, ga.AN_rep_zyg, ga.AN_swt_zyg);
+legend1 = legend({'anger repetition', 'anger switch', 'happiness repetition', 'happiness switch'}, 'Location', 'NorthEast');
 title('Zyg');
-
+set(legend1,...
+    'Position',[0.672619053366638 0.0861111285231143 0.266071422823838 0.165476185934884]);
+tightfig;
+ 
 
 fig = gcf;
 
@@ -39,26 +41,30 @@ fig = gcf;
 
 function [ TlCond ] = calcTimelock (subjid, emgPreproDir, force)
 
-conds = {'AN_prep_cor' 'AN_prep_zyg' 'AN_unprep_cor' 'AN_unprep_zyg'...
-    'HA_prep_zyg' 'HA_prep_cor' 'HA_unprep_zyg' 'HA_unprep_cor';
-        51 51 61 61 52 52 62 62;
-        1 2 1 2 2 1 2 1};
 
- target_file = fullfile(emgPreproDir, subjid, [subjid '_timelock.mat']);
+ target_file = fullfile(emgPreproDir, subjid, [subjid '_timelock_ts.mat']);
  if exist(target_file,'file') && force == false
      %warning([subjid ': Timelock already calculated, not overwriting'])
      load(target_file);
      return
  end;
 
- prepro_file = fullfile(emgPreproDir, subjid, [subjid '_prepro_class.mat']);
+ prepro_file = fullfile(emgPreproDir, subjid, [subjid '_prepro_ts_class.mat']);
  load(prepro_file);
 
+ conds = data.conds;
+ 
+ conds = {[conds{1,1} '_cor'], [conds{1,1} '_zyg'], [conds{1,2} '_cor'], ...
+     [conds{1,2} '_zyg'], [conds{1,3} '_zyg'], [conds{1,3} '_cor'], ...
+     [conds{1,4} '_zyg'], [conds{1,4} '_cor'];
+     conds{2,1} conds{2,1} conds{2,2} conds{2,2} conds{2,3} conds{2,3} ...
+     conds{2,4} conds{2,4}; 1 2 1 2 2 1 2 1};
+ 
  for i = 1:size(conds,2)
      con = conds{1,i};
      trg = conds{2,i};
      chan = conds{3,i};
-     indices = find(data.trialinfo(:,1) == trg & ~isnan(data.trialinfo(:,3)));
+     indices = find(ismember(data.trialinfo(:,1), trg) & ~isnan(data.trialinfo(:,3)));
 
      cfg = [];
      cfg.trials = indices;
@@ -66,11 +72,11 @@ conds = {'AN_prep_cor' 'AN_prep_zyg' 'AN_unprep_cor' 'AN_unprep_zyg'...
      TlCond.(con) = ft_timelockanalysis(cfg,data);
  end;
 
- save(fullfile(emgPreproDir, subjid, [subjid '_timelock.mat']), 'TlCond');
+ save(fullfile(emgPreproDir, subjid, [subjid '_timelock_ts.mat']), 'TlCond');
 
  function [ ga, TlCond ] = aggregateTimelocks (SessionInfo, force, forceGA)
 
-ga_file = fullfile(SessionInfo.outDir, 'tlga.mat');
+ga_file = fullfile(SessionInfo.outDir, 'tlga_ts.mat');
 if exist(ga_file,'file') && ~forceGA
     load(ga_file, 'ga');
     TlCond = nan;

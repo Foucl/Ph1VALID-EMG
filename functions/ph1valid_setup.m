@@ -20,7 +20,7 @@ end;
 
 warning('off', 'MATLAB:dispatcher:pathWarning');
 warning('off', 'MATLAB:MKDIR:DirectoryExists');
-restoredefaultpath;
+% restoredefaultpath;
 
 % get basic information on current machine
 
@@ -91,6 +91,9 @@ addpath(fullfile(S.toolboxDir, 'fieldtrip'));
 addpath(fullfile(S.toolboxDir, 'fieldtrip', 'fileio'));
 addpath(fullfile(S.projectDir, 'helpers'));
 
+global ft_default
+ft_default.showcallinfo = 'no';
+
 %experimental: use global variable, so the setup does not have to be run
 %every time:
 global Sess;
@@ -98,4 +101,3 @@ Sess = S;
 
 SessionInfo = S;
 end
-

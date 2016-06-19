@@ -33,6 +33,10 @@ end;
 
 SessionInfo = ph1valid_setup;
 
+global ft_default;
+ft_default.trackcallinfo = 'no';
+ft_default.showcallinfo = 'no';
+
 %% get rid of exluded subjects
 excl_nodata = ['VP03';'VP07';'VP08'];
 
@@ -59,7 +63,7 @@ end;
 Info.emg_data = 'yes';
 
 %% Preprocessing (demean1, demean2, detrend, filter, segment, rectify, ...
-[ data ] = basicPrepro(dataFile, input, SessionInfo.emgPreproDir, subjid);
+[ data ] = basicPrepro(dataFile, input, subjid);
 
 %% collect some basic information on the dataset
 conds = {'AN_prep' 'AN_unprep' 'HA_prep' 'HA_unprep';
@@ -110,7 +114,7 @@ if warn
 end;
 
 
-function [ data ] = basicPrepro (dataFile, input, emgPreproDir, subjid)
+function [ data ] = basicPrepro (dataFile, input, subjid)
 Info.emg_data = 'yes';
 hdr = ImportBDFHeader(dataFile);
 Info.date = datetime([hdr.dataDate '_' hdr.dataTime],'InputFormat','dd.MM.yy_HH.mm.ss');
@@ -169,6 +173,7 @@ data = cellfun(@(x) ft_apply_montage(x, bipolar), data, 'UniformOutput', false);
 for i = 1:length(data)
     data{i}.trial = cellfun(@abs,data{i}.trial, 'UniformOutput', false);
 end;
+
 function [ dataFile ] = ph1valid_validate( subjid )
 %PH1VALID_VALIDATERP Checks Validity of RP segment in EMG data
 %   returns file handle
@@ -198,7 +203,7 @@ fname = dir(fullfile(dataDir, '*.bdf'));
 assert(~isempty(fname),'custom:no_data', 'No *.bdf file found in %s.', dataDir);
 
 if length(fname) > 1
-    warning('multiple *.bdf files found, caution advised'); %TODO: automatically concatenate the files
+    warning('multiple *.bdf files found, caution advised');
 end;
 [~,idx] = max([fname.bytes]);
 fname = fname(idx).name;  % take the largest file

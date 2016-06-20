@@ -198,8 +198,13 @@ mfile_table = [mfile_table neo_table];
 mfile_table.Properties.VariableNames(3) = {'lfdnUnipark'};
 writetable(mfile_table, 'uniparkMapping.csv');
 excl = [3 28 38];
+mfile_table.pseudonym{3} = nan;
 S = table2struct(mfile_table);
 S = rmfield(S, {'subjid', 'pseudonym'});
+to_excl = mfile_table.lfdnUnipark;
+T.lfdn = cell2mat(T.lfdn);
+T_rest = T(~ismember(T.lfdn, to_excl), :);
+writetable(T_rest, 'uniparkRest.csv');
 
 for i = 1:length(S)
     if i < 10

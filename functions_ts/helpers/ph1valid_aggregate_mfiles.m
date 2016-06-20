@@ -26,6 +26,21 @@ end;
 
 mfile_table = struct2table(sub);
 
+h1 = histogram(mfile_table.AN_prep_meanRT);
+hold on
+h2 = histogram(mfile_table.AN_unprep_meanRT);
+
+h1.Normalization = 'pdf';
+h1.BinWidth = 0.1;
+h2.Normalization = 'pdf';
+h2.BinWidth = 0.1;
+
+pd = fitdist(mfile_table.AN_prep_meanRT,'Kernel', 'Width', 0.05);
+x_values = 0.1:0.01:1.2;
+y = pdf(pd,x_values);
+plot(x_values,y);
+
+
 %% generate pretty, informative table
 % be smarter about variable collection:
 

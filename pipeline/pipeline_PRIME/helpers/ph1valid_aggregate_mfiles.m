@@ -15,7 +15,7 @@ subjmfileDir = SessionInfo.subjmfileDir;
 existingSubjmfiles = ls(subjmfileDir);
 existingSubjmfiles = existingSubjmfiles(3:end,1:end-2);
 excl = ['VP03_subjinfo';'VP07_subjinfo';'VP08_subjinfo';'VP11_subjinfo';'VP14_subjinfo'];
-%existingSubjmfiles = setdiff(existingSubjmfiles, excl, 'rows');
+existingSubjmfiles = setdiff(existingSubjmfiles, excl, 'rows');
 
 normalizeStructs(existingSubjmfiles)
 
@@ -26,49 +26,25 @@ end;
 
 mfile_table = struct2table(sub);
 
-h1 = histogram(mfile_table.AN_prep_meanRT);
-hold on
-h2 = histogram(mfile_table.AN_unprep_meanRT);
-
-h1.Normalization = 'pdf';
-h1.BinWidth = 0.1;
-h2.Normalization = 'pdf';
-h2.BinWidth = 0.1;
-
-pd = fitdist(mfile_table.AN_prep_meanRT,'Kernel', 'Width', 0.05);
-x_values = 0.1:0.01:1.2;
-y = pdf(pd,x_values);
-plot(x_values,y);
-
-
 %% generate pretty, informative table
-% be smarter about variable collection:
+interesting_vars = {'subjid', 'date', 'emg_data', 'nRpTrials', 'isExcluded', 'first_block', 'happy_letter', 'alter', 'geschlecht', 'nErrors', ...
+    'AN_prep_nFpTrials', 'AN_prep_nOmissionTrials', 'AN_prep_nHitTrials', 'AN_unprep_nFpTrials', ...
+    'AN_unprep_nOmissionTrials', 'AN_unprep_nHitTrials', 'HA_prep_nFpTrials', 'HA_prep_nOmissionTrials', ...
+    'HA_prep_nHitTrials', 'HA_unprep_nFpTrials', 'HA_unprep_nOmissionTrials', 'HA_unprep_nHitTrials', ...
+    'AN_prep_meanRT', 'AN_prep_sdRT', 'AN_unprep_meanRT', 'AN_unprep_sdRT', 'HA_prep_meanRT', ...
+    'HA_prep_sdRT', 'HA_unprep_meanRT', 'HA_unprep_sdRT', 'AN_meanRT', 'AN_sdRT', 'HA_meanRT', 'HA_sdRT', ...
+    'prep_meanRT', 'prep_sdRT', 'unprep_meanRT', 'unprep_sdRT', 'AN_prep_propHit',  'AN_unprep_propHit',...
+    'HA_prep_propHit', 'HA_unprep_propHit', 'AN_prep_propOm',  'AN_unprep_propOm',...
+    'HA_prep_propOm', 'HA_unprep_propOm', 'AN_prep_propFP',  'AN_unprep_propFP',...
+    'HA_prep_propFP', 'HA_unprep_propFP', 'nFP', 'nOmissions', 'nHits', 'AN_prep_mean_max_amp','AN_unprep_mean_max_amp', ...
+    'HA_prep_mean_max_amp', 'HA_unprep_mean_max_amp'};
 
-standard_vars = {'subjid', 'alter', 'geschlecht', 'date', 'emg_data', 'isExcluded', 'happy_letter'};
-rp_gen_vars = {'nRpTrials', 'nErrors', 'nFP', 'nOmissions', 'nHits'};
-ts_gen_vars = ['nTsTrials', cellfun(@(x) [x '_ts'], rp_gen_vars(2:end), 'Uniform', 0)];
-conds_rp = {'AN_prep', 'AN_unprep', 'HA_prep', 'HA_unprep'};
-conds_ts = {'AN_rep', 'AN_swt', 'HA_rep', 'HA_swt'};
-con_vars = {'nFpTrials', 'nOmissionTrials', 'nHitTrials', 'meanRT', 'sdRT', 'propOm', 'propHit', 'propFP', ...
-    'cleanMeanMaxAmp'};
-
-rp_con_vars = cell(length(conds_ts), length(con_vars));
-ts_con_vars = rp_con_vars;
-for i = 1:length(conds_rp)
-    for j = 1:length(con_vars)
-        rp_con_vars{i, j} = [conds_rp{i} '_' con_vars{j}];
-        ts_con_vars{i, j} = [conds_ts{i} '_' con_vars{j}];
-    end;
-end;
-
-interesting_vars = [standard_vars'; ts_gen_vars'; rp_gen_vars'; ts_con_vars(:); rp_con_vars(:)];
-T = mfile_table(:, interesting_vars);
+T = mfile_table(:,interesting_vars);
 T.geschlecht = categorical(T.geschlecht, [1, 2], {'male', 'female'});
 T.Properties.VariableNames{'geschlecht'} = 'sex';
 T.Properties.VariableNames{'alter'} = 'age';
 T.happy_letter = upper(T.happy_letter);
-T.propErrors_RP = T.nErrors/T.nRpTrials;
-T.propErrors_TS = T.nErrors_ts/T.nTsTrials;
+T.propErrors = T.nErrors/200;
 
 qual_vars = {'subjid', 'date', 'emg_data', 'nRpTrials', 'isExcluded', 'nErrors', 'propErrors', 'nFP', 'nOmissions', ...
     'AN_prep_meanRT', 'AN_unprep_meanRT', 'HA_prep_meanRT', 'HA_unprep_meanRT', 'AN_prep_mean_max_amp','AN_unprep_mean_max_amp', ...
@@ -85,15 +61,6 @@ invalid = [mean(T.HA_unprep_meanRT); mean(T.AN_unprep_meanRT)];
 anRT = table(valid, invalid, 'RowNames', {'Happiness', 'Anger'});
 
 %% construct anova-table:
-% and be smart about it this time as well
-
-for i = 1:length(conds_rp)
-    for j = 1:length(con_vars)
-        rp_con_vars{i, j} = [conds_rp{i} '_' con_vars{j}];
-        ts_con_vars{i, j} = [conds_ts{i} '_' con_vars{j}];
-    end;
-end;
-
 rt_vars = {'subjid', 'AN_prep_meanRT',  'AN_unprep_meanRT', 'HA_prep_meanRT', 'HA_unprep_meanRT'};
 T_RT = T(:,rt_vars);
 
@@ -107,23 +74,25 @@ fp_vars = {'subjid', 'AN_prep_propFP',  'AN_unprep_propFP', 'HA_prep_propFP', 'H
 T_fp = T(:,fp_vars);
 
 %% long
-% T2 = stack(T_RT, rt_vars(2:end), 'NewDataVariableName','RT', 'IndexVariableName','Condition')
-% a = T2.Condition;
-% [b] = cellfun(@(x) strsplit(x, '_'), a, 'UniformOutput', false);
-% for i = 1:length(b)
-%     curcell = b{i};
-%     if i == 1
-%         em = curcell(1);
-%         val = curcell(2);
-%     else
-%         em = [em; curcell(1)];
-%         val = [val; curcell(2)];
-%     end;
-% end;
-% 
-% T2.Condition = [];
-% T2.em = em;
-% T2.val = val;
+T2 = stack(T_RT, rt_vars(2:end), 'NewDataVariableName','RT', 'IndexVariableName','Condition')
+a = T2.Condition;
+[b] = cellfun(@(x) strsplit(x, '_'), a, 'UniformOutput', false);
+for i = 1:length(b)
+    curcell = b{i};
+    if i == 1
+        em = curcell(1);
+        val = curcell(2);
+    else
+        em = [em; curcell(1)];
+        val = [val; curcell(2)];
+    end;
+end;
+
+T2.Condition = [];
+T2.em = em;
+T2.val = val;
+
+
 
 %% doch wide: funktionierender Code für RT
 em = categorical({'AN'; 'AN'; 'HA'; 'HA'; });
@@ -158,11 +127,11 @@ title('Proportion Omissions')
 function normalizeStructs(existingSubjmfiles)
 
 
-subfields = cell(0,1);
+subfields = {};
 for i = 1:length(existingSubjmfiles)
     eval(existingSubjmfiles(i,:));
      % concatenate
-    subfields = [subfields; fieldnames(subjinfo)];
+    subfields = [subfields fieldnames(subjinfo)];
 end;
 % 
 % % find all unique fields

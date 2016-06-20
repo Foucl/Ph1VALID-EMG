@@ -145,6 +145,7 @@ end;
 [ ~, lastid ] = lastwarn;
 
 Info.nTsTrials = length(cfg.trl);
+ph1valid_writeToSubjmfile(Info, subjid);
 
 %%% preprocess
 % baseline correction, low pass filter (10Hz, order 2)
@@ -199,7 +200,9 @@ if length(fname) > 1
 end;
 [~,idx] = max([fname.bytes]);
 fname = fname(idx).name;  % take the largest file
-%if strcmp(subjid, 'VP01')
+if strcmp(subjid, 'VP01')
+    fname = 'vp01_bl1_TS.bdf';
+end;
 dataFile = fullfile(dataDir, fname);
 
 function [input, subjid] =  checkInputs(subjid, varargin)

@@ -1,4 +1,4 @@
-function [ sub ] = ph1valid_getUnipark( input_args )
+function [ sub ] = ph1valid09_getUnipark( input_args )
 %PH1VALID_GETUNIPARK Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -214,7 +214,7 @@ for i = 1:length(S)
     end;
     subjid = ['VP' b];
     
-    ph1valid_writeToSubjmfile(S(i), subjid);
+    io.writeToSubjmfile(S(i), subjid);
      % concatenate
 end;
 
@@ -238,6 +238,6 @@ for i = 1:length(existingSubjmfiles)
      for j = 1:length(missingFields)
           subjinfo.(missingFields{j}) = nan;
      end;
-     ph1valid_writeToSubjmfile(subjinfo, subjinfo.subjid);
+    io.writeToSubjmfile(subjinfo, subjinfo.subjid);
 end;
 

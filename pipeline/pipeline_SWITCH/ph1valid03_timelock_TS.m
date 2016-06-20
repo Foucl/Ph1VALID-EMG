@@ -23,13 +23,20 @@ cfg.linewidth = 0.8;
 
 inner_padding = [0.07, 0.06];
 figure;
-subplot_tight(1,2,1, inner_padding);
+subplot_tight(2,2,1, inner_padding);
 ft_singleplotER(cfg, ga.AN_rep_cor, ga.AN_swt_cor, ga.HA_rep_cor, ga.HA_swt_cor);
 title('Cor');
-subplot_tight(1,2,2, inner_padding);
+subplot_tight(2,2,2, inner_padding);
 ft_singleplotER(cfg, ga.HA_rep_zyg, ga.HA_swt_zyg, ga.AN_rep_zyg, ga.AN_swt_zyg);
-legend1 = legend({'anger repetition', 'anger switch', 'happiness repetition', 'happiness switch'}, 'Location', 'NorthEast');
 title('Zyg');
+subplot_tight(2,2,3, inner_padding);
+ft_singleplotER(cfg, ga_RP.AN_prep_cor, ga_RP.AN_unprep_cor, ga_RP.HA_prep_cor, ga_RP.HA_unprep_cor);
+title('Cor');
+subplot_tight(2,2,4, inner_padding);
+ft_singleplotER(cfg, ga_RP.AN_prep_zyg, ga_RP.AN_unprep_zyg, ga_RP.HA_prep_zyg, ga_RP.HA_unprep_zyg);
+title('Zyg');
+legend1 = legend({'anger valid', 'anger invalid', 'happiness valid', 'happiness valid'}, 'Location', 'NorthEast');
+
 set(legend1,...
     'Position',[0.672619053366638 0.0861111285231143 0.266071422823838 0.165476185934884]);
 tightfig;

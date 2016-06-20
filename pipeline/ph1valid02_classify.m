@@ -1,25 +1,27 @@
-function [ data, Info ] = ph1valid02_classify_TS( varargin )
+function [ data, Info ] = ph1valid02_classify( subjid, which_th, experiment )
 %PH1VALID02_CLASSIFY Summary of this function goes here
 %   Detailed explanation goes here
 
 %% 0. setup
-p=inputParser;
 
-validSubjid = @(x) validateattributes(x,{'char'},{'size',[1,4]});
-p.addParameter('subjid','VP15',validSubjid);
-p.addParameter('which_th','Threshold');
+if nargin < 1
+    subjid = 'VP15';
+    which_th = 'cleanThreshold';
+    experiment = 'Rp';
+elseif nargin < 2
+    which_th = 'cleanThreshold';
+    experiment = 'Rp';
+elseif nargin < 3
+    experiment = 'Rp';
+end;
 
-p.parse(varargin{:});
-subjid = p.Results.subjid;
-which_th = p.Results.which_th;
-
-SessionInfo = ph1valid_setup;
+SessionInfo = ph1valid00_setup;
 
 %% 1. get preprocessed data; if not found, preprocess
-dataFile = fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_prepro_ts.mat']);
+dataFile = fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_prepro_' experiment '.mat']);
 
 if exist(dataFile, 'file')== 0
-    ph1valid01_prepro_TS(subjid);
+    ph1valid01_prepro(subjid, experiment);
 end;
 
 load(dataFile, 'data');
@@ -28,7 +30,8 @@ load(dataFile, 'data');
 
 eval([subjid '_subjinfo']);
 
-conds = data.conds;
+conds = prepro.defineConditions(subjinfo);
+conds = conds.(experiment);
     
 con_wrong = conds(1, [3 4 1 2]);
 th = nan(1,4);
@@ -36,8 +39,8 @@ th_o = nan(1,4);
 
 
 for i = 1:size(conds, 2)
-    th(i) = subjinfo.([conds{1,i} '_' which_th]);
-    th_o(i) = subjinfo.([con_wrong{i} '_' which_th]);
+    th(i) = subjinfo.([conds{1,i} '_' which_th '_' experiment]);
+    th_o(i) = subjinfo.([con_wrong{i} '_' which_th '_' experiment]);
 end;
 
 
@@ -95,20 +98,20 @@ for i = 1:size(conds, 2)
     hitTrials(isnan(hitTrials)) = [];
     
     allOmissions{i} = omissionTrials;
-    Info.([con '_nOmissionTrials']) = length(omissionTrials);
+    Info.([con '_nOmissionTrials_' experiment]) = length(omissionTrials);
     allFp{i} = fpTrials;
-    Info.([con '_nFpTrials']) = length(fpTrials);
+    Info.([con '_nFpTrials_' experiment]) = length(fpTrials);
     allHits{i} = hitTrials;
-    Info.([con '_nHitTrials']) = length(hitTrials);
+    Info.([con '_nHitTrials_' experiment]) = length(hitTrials);
     
 end;
 
-Info.allFp_ts = [allFp{:}];
-Info.allOmissions_ts = [allOmissions{:}];
-Info.allHits_ts = [allHits{:}];
-Info.nFP_ts = nFP;
-Info.nOmissions_ts = nOmissions;
-Info.nHits_ts = nHits;
+Info.(['allFp_' experiment]) = [allFp{:}];
+Info.(['allOmissions_' experiment]) = [allOmissions{:}];
+Info.(['allHits_' experiment]) = [allHits{:}];
+Info.(['nFP_' experiment]) = nFP;
+Info.(['nOmissions_' experiment]) = nOmissions;
+Info.(['nHits_' experiment]) = nHits;
 
 maskEmptyId = structfun(  @(a)isempty(a), Info )';
 names = fieldnames(Info);
@@ -129,12 +132,12 @@ for i = 1:size(conds, 2)
     %mean_response_time
     mean_response_time = mean(curtrial(:,3), 'omitnan');
     sd_response_time = std(curtrial(:,3), 'omitnan');
-    Info.([con '_meanRT']) = mean_response_time;
-    Info.([con '_sdRT']) = sd_response_time;
+    Info.([con '_meanRT_' experiment]) = mean_response_time;
+    Info.([con '_sdRT_' experiment]) = sd_response_time;
 end;
 
 % for factor emotion
-em = {'AN_ts', 'HA_ts'};
+em = {'AN', 'HA'};
 em{2,1} = [conds{2,1} conds{2,2}];
 em{2,2} = [conds{2,3} conds{2,4}];
 for i = 1:size(em, 2)
@@ -145,12 +148,12 @@ for i = 1:size(em, 2)
     %mean_response_time
     mean_response_time = mean(curtrial(:,3), 'omitnan');
     sd_response_time = std(curtrial(:,3), 'omitnan');
-    Info.([con '_meanRT']) = mean_response_time;
-    Info.([con '_sdRT']) = sd_response_time;
+    Info.([con '_meanRT_' experiment]) = mean_response_time;
+    Info.([con '_sdRT_' experiment]) = sd_response_time;
 end;
 
 % for factor preparedness/validity
-val = {'rpt', 'swt'};
+val = {'val', 'inval'};
 val{2,1} = [conds{2,1} conds{2,3}];
 val{2,2} = [conds{2,2} conds{2,4}];
 for i = 1:size(val, 2)
@@ -161,28 +164,28 @@ for i = 1:size(val, 2)
     %mean_response_time
     mean_response_time = mean(curtrial(:,3), 'omitnan');
     sd_response_time = std(curtrial(:,3), 'omitnan');
-    Info.([con '_meanRT']) = mean_response_time;
-    Info.([con '_sdRT']) = sd_response_time;
+    Info.([con '_meanRT_' experiment]) = mean_response_time;
+    Info.([con '_sdRT_' experiment]) = sd_response_time;
 end;
 
 %% some more calculations (hit-percentages etc.)
 for i = 1:size(conds, 2)
     con = conds{1,i};
-    nErr = subjinfo.([con '_nErrorTrials']); %conds{6,i};
-    nDefault = subjinfo.([con '_cleannTrials']) + nErr;
-    nHits = Info.([con '_nHitTrials']);
-    nFP = Info.([con '_nFpTrials']);
-    nOm = Info.([con '_nOmissionTrials']);
-    Info.([con '_propHit']) = nHits / (nDefault - nErr);
-    Info.([con '_propOm']) = nOm / (nDefault - nErr);
-    Info.([con '_propFP']) = nFP / (nDefault - nErr);
+    nErr = subjinfo.([con '_nErrorTrials_' experiment]); %conds{6,i};
+    nDefault = subjinfo.([con '_nCleanTrials_' experiment]) + nErr;
+    nHits = Info.([con '_nHitTrials_' experiment]);
+    nFP = Info.([con '_nFpTrials_' experiment]);
+    nOm = Info.([con '_nOmissionTrials_' experiment]);
+    Info.([con '_propHit_' experiment]) = nHits / (nDefault - nErr);
+    Info.([con '_propOm_' experiment]) = nOm / (nDefault - nErr);
+    Info.([con '_propFP_' experiment]) = nFP / (nDefault - nErr);
 end;
 
 %% 5. dump data
 
-save(fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_prepro_ts_class.mat']), 'data');
+save(fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_class_' experiment '.mat']), 'data');
 
-ph1valid_writeToSubjmfile(Info, subjid);
+io.writeToSubjmfile(Info, subjid);
 
 
 end

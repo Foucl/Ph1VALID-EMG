@@ -4,7 +4,7 @@ function [ sub ] = ph1valid09_getUnipark( input_args )
 
 %% setup
 addpath(genpath('functions_ts'));
-SessionInfo = ph1valid_setup;
+SessionInfo = ph1valid00_setup;
 
 %% read file
 dataDir = fullfile(SessionInfo.dataDir, 'Unipark_Export');

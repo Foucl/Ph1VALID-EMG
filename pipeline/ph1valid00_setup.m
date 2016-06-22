@@ -1,4 +1,4 @@
-function [ SessionInfo ] = ph1valid_setup( force )
+function [ SessionInfo ] = ph1valid00_setup( force )
 %PH1VALID_SETUP Sets up directory information and stores them in 'SessionInfo'
 % as well as in the global Variable 'Sess'
 % also loads fieldtrip

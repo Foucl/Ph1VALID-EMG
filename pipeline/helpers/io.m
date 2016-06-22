@@ -7,12 +7,12 @@ classdef io
     
     methods (Static)
         function [ SubjInfo ] = ph1valid_getSubjFiles( force )
-            %PH1VALID_GET Summary of this function goes here
+            %PH1VALID_GETSUBJFILES read presentation log files
             %   Detailed explanation goes here
             
             isLoop = true;
             
-            SessionInfo = ph1valid_setup;
+            SessionInfo = ph1valid00_setup;
             
             presentationDir = SessionInfo.presentationDir;
             subjmfileDir = SessionInfo.subjmfileDir;
@@ -96,7 +96,7 @@ classdef io
             %   checks if subjmfile already exists and, if not, asks whether or not to
             %   create it (from presentation-file)
             
-            SessionInfo = ph1valid_setup;
+            SessionInfo = ph1valid00_setup;
             
             subjmfileDir = SessionInfo.subjmfileDir;
             mult = false;

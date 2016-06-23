@@ -6,6 +6,30 @@ classdef io
     end
     
     methods (Static)
+        function normalizeStructs(existingSubjmfiles)
+            
+            
+            subfields = cell(0,1);
+            for i = 1:length(existingSubjmfiles)
+                eval(existingSubjmfiles(i,:));
+                % concatenate
+                subfields = [subfields; fieldnames(subjinfo)];
+            end;
+            %
+            % % find all unique fields
+            allfields = unique(subfields);
+            %
+            % % do another loop and compare fieldnames with allfields, and create array of structs
+            for i = 1:length(existingSubjmfiles)
+                eval(existingSubjmfiles(i,:));
+                % concatenate
+                missingFields = setdiff(allfields, fieldnames(subjinfo));
+                for j = 1:length(missingFields)
+                    subjinfo.(missingFields{j}) = nan;
+                end;
+                ph1valid_writeToSubjmfile(subjinfo, subjinfo.subjid);
+            end;
+        end;
         function [ SubjInfo ] = ph1valid_getSubjFiles( force )
             %PH1VALID_GETSUBJFILES read presentation log files
             %   Detailed explanation goes here

@@ -12,7 +12,7 @@ existingSubjmfiles = existingSubjmfiles(3:end,1:end-2);
 %excl = ['VP03_subjinfo';'VP07_subjinfo';'VP08_subjinfo';'VP11_subjinfo';'VP14_subjinfo'];
 %existingSubjmfiles = setdiff(existingSubjmfiles, excl, 'rows');
 
-normalizeStructs(existingSubjmfiles)
+io.normalizeStructs(existingSubjmfiles)
 
 for i = 1:length(existingSubjmfiles)
     eval(existingSubjmfiles(i,:));
@@ -196,29 +196,7 @@ subplot(2,2,4)       % add second plot in 2 x 1 grid
 plotprofile(rm_om, 'val_ts', 'Group', 'em');       % plot using + markers
 title('Proportion Omissions')
 
-function normalizeStructs(existingSubjmfiles)
 
-
-subfields = cell(0,1);
-for i = 1:length(existingSubjmfiles)
-    eval(existingSubjmfiles(i,:));
-     % concatenate
-    subfields = [subfields; fieldnames(subjinfo)];
-end;
-% 
-% % find all unique fields
-allfields = unique(subfields);
-% 
-% % do another loop and compare fieldnames with allfields, and create array of structs
-for i = 1:length(existingSubjmfiles)
-    eval(existingSubjmfiles(i,:));
-     % concatenate
-    missingFields = setdiff(allfields, fieldnames(subjinfo));
-     for j = 1:length(missingFields)
-          subjinfo.(missingFields{j}) = nan;
-     end;
-     ph1valid_writeToSubjmfile(subjinfo, subjinfo.subjid);
-end;
 % 
 % %weiter wie gewohnt
 

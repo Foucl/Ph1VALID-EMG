@@ -73,7 +73,7 @@ conds = conds.(experiment);
 
 % get thresholds and Amplitudes
 
-[ Info ] = prepro.getThresholds(data{1}, Info, conds, '', experiment);
+[ Info, data{1} ] = prepro.getThresholds(data{1}, Info, conds, '', experiment);
 
 %% find errors (reactions ocurring prior to target stimulus)
 
@@ -101,7 +101,7 @@ data = ft_selectdata(cfg, data);
 data.cfg.event = data.cfg.previous.event;
 
 %% recalculate thresholds
-[ Info ] = prepro.getThresholds(data, Info, conds, 'clean', experiment);
+[ Info, data ] = prepro.getThresholds(data, Info, conds, 'clean', experiment);
 
 Info.(['isExcluded_' experiment]) = 'no';
 

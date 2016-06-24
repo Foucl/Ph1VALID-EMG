@@ -27,7 +27,7 @@ classdef io
                 for j = 1:length(missingFields)
                     subjinfo.(missingFields{j}) = nan;
                 end;
-                ph1valid_writeToSubjmfile(subjinfo, subjinfo.subjid);
+                io.writeToSubjmfile(subjinfo, subjinfo.subjid);
             end;
         end;
         function [ SubjInfo ] = ph1valid_getSubjFiles( force )

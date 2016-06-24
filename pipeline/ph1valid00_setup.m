@@ -55,6 +55,8 @@ end
 S.emgRawDir = fullfile(S.dataDir, 'EMG_raw');
 S.presentationDir = fullfile(S.dataDir, 'Presentation-logfiles');
 S.emgPreproDir = fullfile(S.outDir, 'EMG_preprocessed');
+S.emgDsDir = fullfile(S.outDir, 'EMG_downsampled');
+S.emgRawDir = S.emgDsDir;
 S.subjmfileDir = fullfile(S.outDir, 'subjmfiles');
 
 [S.projectDir, ~, ~] = fileparts(mfilename('fullpath'));

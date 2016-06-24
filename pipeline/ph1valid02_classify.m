@@ -5,11 +5,11 @@ function [ data, Info ] = ph1valid02_classify( subjid, which_th, experiment )
 %% 0. setup
 
 if nargin < 1
-    subjid = 'VP15';
-    which_th = 'cleanThreshold';
+    subjid = 'VP16';
+    which_th = 'Threshold';
     experiment = 'Rp';
 elseif nargin < 2
-    which_th = 'cleanThreshold';
+    which_th = 'Threshold';
     experiment = 'Rp';
 elseif nargin < 3
     experiment = 'Rp';

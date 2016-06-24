@@ -43,7 +43,30 @@ mfile_table = struct2table(sub);
 
 % generate names of variables of interest programmatically
 
-standard_vars = {'subjid', 'alter', 'geschlecht', 'date', 'emg_data', 'isExcluded', 'happy_letter'};
+standard_vars = {'subjid', 'alter', 'geschlecht', 'date', 'first_block', 'happy_letter'};
+
+em = {'AN', 'HA'};
+valid = {'val', 'inval'};
+exp = {'Rp', 'Ts'};
+measures = {'meanRT', 'sdRT', 'nErrorTrials', 'nFpTrials', 'nOmissionTrials', ...
+    'nHitTrials', 'propHit', 'propOm', 'propFP'};
+nTrialVars = length(measures) * length(exp) * length(valid) * length(em);
+m = 1;
+trialVars = cell(1, nTrialVars);
+for i = 1:length(em)
+    for j = 1:length(valid)
+        for k = 1:length(exp)
+            for l = 1:length(measures)
+                trialVars{m} = [em{i} '_' valid{j} '_' measures{l} '_' exp{k}];
+                m = m + 1 ;
+            end
+        end
+    end
+end
+%trialVars = trialVars(~cellfun('isempty',trialVars));
+mfile_table(:,trialVars)
+
+
 rp_gen_vars = {'nRpTrials', 'nErrors', 'nFP', 'nOmissions', 'nHits'};
 ts_gen_vars = ['nTsTrials', cellfun(@(x) [x '_ts'], rp_gen_vars(2:end), 'Uniform', 0)];
 conds_rp = {'AN_prep', 'AN_unprep', 'HA_prep', 'HA_unprep'};

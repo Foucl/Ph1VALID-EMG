@@ -1,16 +1,16 @@
 function ph1valid03_prepro_loop( type, experiment, which_th )
 
-%SessionInfo = ph1valid_setup;
+%SessionInfo = ph1valid00_setup;
 
 if nargin < 1
     type = 'both';
     experiment = 'Rp';
-    which_th = 'cleanThreshold';
+    which_th = 'Threshold';
 elseif nargin < 2
     experiment = 'Rp';
-    which_th = 'cleanThreshold';
+    which_th = 'Threshold';
 elseif nargin < 3
-    which_th = 'cleanThreshold';
+    which_th = 'Threshold';
 end;
 
 

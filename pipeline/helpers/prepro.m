@@ -39,7 +39,11 @@ classdef prepro
             [~,idx] = max([fname.bytes]);
             fname = fname(idx).name;  % take the largest file
             if strcmp(subjid, 'VP01') && strcmpi(experiment, 'rp')
-                fname = 'vp01_bl1_TS.bdf';
+                try
+                    fname = 'vp01_bl1_TS.bdf';
+                catch
+                    fname = 'vp01_bl1_TS-Deci.bdf';
+                end;
             end;
             dataFile = fullfile(dataDir, fname);
         end
@@ -72,12 +76,12 @@ classdef prepro
                 a = strsplit(ME.identifier, '_');
                 Info.(['n' experiment 'Trials']) = str2double(a{2});
                 Info.isExcluded = 'yes';
-                ph1valid_writeToSubjmfile(Info, subjid);
+                io.writeToSubjmfile(Info, subjid);
                 rethrow(ME);
             end;
             
             Info.(['n' experiment 'Trials']) = length(cfg.trl);
-            ph1valid_writeToSubjmfile(Info, subjid);
+            io.writeToSubjmfile(Info, subjid);
             
             %%% preprocess
             % baseline correction, low pass filter (10Hz, order 2)
@@ -105,7 +109,7 @@ classdef prepro
                 data{i}.trial = cellfun(@abs,data{i}.trial, 'UniformOutput', false);
             end;
         end
-        function [ Info ] = getThresholds(data, Info, conds, type, experiment)
+        function [ Info, data ] = getThresholds(data, Info, conds, type, experiment)
             % recalculate clean thresholds
             for i = 1:size(conds,2)
                 con = conds{1,i};
@@ -113,9 +117,17 @@ classdef prepro
                 trg = conds{2,i};
                 indices = find(ismember(data.trialinfo, trg));
                 curdat = data.trial(indices);
-                amps = cellfun(@(x) max(x(chani,:)), curdat);
+                curtime = data.time(indices);
+                curtime = cell2mat(curtime');
+                [amps, ind_amps] = cellfun(@(x) max(x(chani,:)), curdat);
+                amp_times = arrayfun(@(n) (curtime(n,ind_amps(n))), 1:size(curtime,1));
+                
+                data.trialinfo(indices,4) = amps';
+                data.trialinfo(indices,5) = amp_times';
                 Info.([con '_' type 'MaxAmp_' experiment]) = max(amps);
                 Info.([con '_' type 'MeanMaxAmp_' experiment]) = mean(amps);
+                Info.([con '_' type 'SdMaxAmp_' experiment]) = std(amps);
+                Info.([con '_' type 'MeanMaxAmpTime_' experiment]) = mean(amp_times);
                 Info.([con '_' type 'Threshold_' experiment]) = 0.25*mean(amps);
             end;
         end
@@ -156,7 +168,7 @@ classdef prepro
                 errorTrials(isnan(errorTrials)) = [];
                 Info.([con '_errorTrials_' experiment]) = errorTrials.';
                 Info.([con '_nErrorTrials_' experiment]) = length(errorTrials);
-                 Info.([con '_nCleanTrials_' experiment]) = length(indices) - length(errorTrials);
+                Info.([con '_nCleanTrials_' experiment]) = length(indices) - length(errorTrials);
                 allErrors{i} = errorTrials';
                 nErrors = nErrors + length(errorTrials);
             end;

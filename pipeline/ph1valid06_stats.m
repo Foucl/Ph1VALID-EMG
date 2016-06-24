@@ -43,13 +43,16 @@ mfile_table = struct2table(sub);
 
 % generate names of variables of interest programmatically
 
-standard_vars = {'subjid', 'alter', 'geschlecht', 'date', 'first_block', 'happy_letter'};
+standard_vars = {'subjid', 'isExcluded_Rp', 'isExcluded_Ts'};
+demo_vars = {'subjid', 'date', 'alter', 'geschlecht', 'psyc'};
+
+T_demo = mfile_table(:, demo_vars);
 
 em = {'AN', 'HA'};
 valid = {'val', 'inval'};
 exp = {'Rp', 'Ts'};
 measures = {'meanRT', 'sdRT', 'nErrorTrials', 'nFpTrials', 'nOmissionTrials', ...
-    'nHitTrials', 'propHit', 'propOm', 'propFP'};
+    'nHitTrials'};
 nTrialVars = length(measures) * length(exp) * length(valid) * length(em);
 m = 1;
 trialVars = cell(1, nTrialVars);
@@ -63,9 +66,29 @@ for i = 1:length(em)
         end
     end
 end
-%trialVars = trialVars(~cellfun('isempty',trialVars));
-mfile_table(:,trialVars)
 
+T_behav = mfile_table(:,[standard_vars, trialVars]);
+
+sign_measures ={'MeanMaxAmp', 'MeanMaxAmpTime', 'SdMaxAmp'};
+nSignVars = length(sign_measures) * length(exp) * length(valid) * length(em);
+m = 1;
+signVars = cell(1, nSignVars);
+for i = 1:length(em)
+    for j = 1:length(valid)
+        for k = 1:length(exp)
+            for l = 1:length(sign_measures)
+                signVars{m} = [em{i} '_' valid{j} '_' sign_measures{l} '_' exp{k}];
+                m = m + 1 ;
+            end
+        end
+    end
+end
+
+T_sign = mfile_table(:,[standard_vars, signVars]);
+
+%% state & other self report measures from experimental run
+% TODO: map state (mood, ruhig, erregt, wach, mued) to correct experiment
+% TODO: get correct 'is_excluded_{experiment}' values during prepro
 
 rp_gen_vars = {'nRpTrials', 'nErrors', 'nFP', 'nOmissions', 'nHits'};
 ts_gen_vars = ['nTsTrials', cellfun(@(x) [x '_ts'], rp_gen_vars(2:end), 'Uniform', 0)];
@@ -73,6 +96,7 @@ conds_rp = {'AN_prep', 'AN_unprep', 'HA_prep', 'HA_unprep'};
 conds_ts = {'AN_rep', 'AN_swt', 'HA_rep', 'HA_swt'};
 con_vars = {'nFpTrials', 'nOmissionTrials', 'nHitTrials', 'meanRT', 'sdRT', 'propOm', 'propHit', 'propFP', ...
     'cleanMeanMaxAmp'};
+
 
 rp_con_vars = cell(length(conds_ts), length(con_vars));
 ts_con_vars = rp_con_vars;

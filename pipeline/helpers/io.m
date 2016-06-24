@@ -6,7 +6,19 @@ classdef io
     end
     
     methods (Static)
-        function normalizeStructs(existingSubjmfiles)
+        function clearSubjmfiles
+            SessionInfo = ph1valid00_setup;
+            subjmfileDir = SessionInfo.subjmfileDir;
+            delete(fullfile(subjmfileDir, '*.m'));
+        end;
+        function normalizeStructs()
+            SessionInfo = ph1valid00_setup;
+
+
+            subjmfileDir = SessionInfo.subjmfileDir;
+
+            existingSubjmfiles = ls(subjmfileDir);
+            existingSubjmfiles = existingSubjmfiles(3:end,1:end-2);
             
             
             subfields = cell(0,1);
@@ -21,6 +33,7 @@ classdef io
             %
             % % do another loop and compare fieldnames with allfields, and create array of structs
             for i = 1:length(existingSubjmfiles)
+                clear subjinfo;
                 eval(existingSubjmfiles(i,:));
                 % concatenate
                 missingFields = setdiff(allfields, fieldnames(subjinfo));
@@ -100,7 +113,12 @@ classdef io
             %biosemi-header
             for i = 1:size(s{1},1)
                 var = strtrim(s{1}(i,:));
-                val = s{2}(i,:);
+                if strcmpi(subjid, 'VP22') && strcmpi(var, 'happy_letter')
+                    val = 'w';
+                else
+                    val = s{2}(i,:);
+                end;
+                
                 if ~isnumeric(val)
                     val = strtrim(val);
                 end;

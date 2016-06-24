@@ -24,7 +24,9 @@ classdef prepro
         function [ dataFile ] = validate( subjid, experiment, SessionInfo )
             %PH1VALID_VALIDATERP Checks Validity of RP segment in EMG data
             %   returns file handle
-            
+            if strcmp(subjid, 'VP01') 
+                error('VP01: no triggers no trials');
+            end;
             % get the folder
             dataDir = fullfile(SessionInfo.emgRawDir, subjid);
             assert(exist(dataDir, 'dir')==7,'custom:no_data', 'no such directory: %s', dataDir);
@@ -38,13 +40,7 @@ classdef prepro
             end;
             [~,idx] = max([fname.bytes]);
             fname = fname(idx).name;  % take the largest file
-            if strcmp(subjid, 'VP01') && strcmpi(experiment, 'rp')
-                try
-                    fname = 'vp01_bl1_TS.bdf';
-                catch
-                    fname = 'vp01_bl1_TS-Deci.bdf';
-                end;
-            end;
+          
             dataFile = fullfile(dataDir, fname);
         end
         
@@ -75,7 +71,7 @@ classdef prepro
                 %disp(ME);
                 a = strsplit(ME.identifier, '_');
                 Info.(['n' experiment 'Trials']) = str2double(a{2});
-                Info.isExcluded = 'yes';
+                Info.(['isExcluded_' experiment]) = 'yes';
                 io.writeToSubjmfile(Info, subjid);
                 rethrow(ME);
             end;

@@ -10,6 +10,7 @@ function [ data, Info ] = ph1valid01_prepro( subjid, experiment )
 %
 %   returns
 %       - fieldtrip data structure
+%       - Info: summary of a couple of measures
 %
 %   also writes fieldtrip data structure to out-folder
 %   and saves the additional information in the corresponding subject's
@@ -51,12 +52,12 @@ SessionInfo = ph1valid00_setup;
 
 try
     dataFile = prepro.validate(subjid, experiment, SessionInfo);
-catch
+catch ME
    Info.(['emg_data_' experiment]) = 'no';
    Info.(['n' experiment 'Trials']) = 0;
-   Info.isExcluded = 'yes';
+   Info.(['isExcluded_' experiment]) = 'yes';
    io.writeToSubjmfile(Info, subjid);
-   return;
+   rethrow(ME);
 end;
 
  Info.(['emg_data_' experiment]) = 'yes';

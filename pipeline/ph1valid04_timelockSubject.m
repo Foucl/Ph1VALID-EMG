@@ -50,8 +50,12 @@ for j = 1:length(exp)
         cfg = [];
         cfg.trials = indices;
         cfg.channel = chan;
-        TlCond.(exp{j}).(con) = ft_timelockanalysis(cfg,data);
+        tl = ft_timelockanalysis(cfg,data);
+        TlCond.(exp{j}).(con) = tl;
+        variable = [con 'MeanVariance_' exp{j}];
+        Info.(variable) = mean(tl.var);
     end;
     TlCondCur = TlCond.(exp{j});
     save(fullfile(emgPreproDir, subjid, [subjid '_timelock_' exp{j} '.mat']), 'TlCondCur');
 end;
+io.writeToSubjmfile(Info, subjid);

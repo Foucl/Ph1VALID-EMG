@@ -29,6 +29,9 @@ load(dataFile, 'data');
 %% 2. read subjmfile (to get thresholds and excluded trials)
 
 eval([subjid '_subjinfo']);
+if strcmpi(subjinfo.(['isExcluded_' experiment]), 'yes');
+    error([subjid ' is excluded from this experiment']);
+end;
 
 conds = prepro.defineConditions(subjinfo);
 conds = conds.(experiment);

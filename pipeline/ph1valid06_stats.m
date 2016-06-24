@@ -1,25 +1,69 @@
-function [ mfile_table ] = ph1valid06_stats( input_args )
-%PH1VALID06_STATS Summary of this function goes here
-%   Detailed explanation goes here
+function [ mfile_table ] = ph1valid06_stats( input_args ) 
+%PH1VALID06_STATS generate Tables where each row represents a subject and
+% each column a variable
+%   Detailed explanation goes he
 
 SessionInfo = ph1valid00_setup;
 
+tableDir = fullfile(SessionInfo.outDir, 'tables');
 
 subjmfileDir = SessionInfo.subjmfileDir;
 
 existingSubjmfiles = ls(subjmfileDir);
 existingSubjmfiles = existingSubjmfiles(3:end,1:end-2);
-%excl = ['VP03_subjinfo';'VP07_subjinfo';'VP08_subjinfo';'VP11_subjinfo';'VP14_subjinfo'];
-%existingSubjmfiles = setdiff(existingSubjmfiles, excl, 'rows');
 
-io.normalizeStructs(existingSubjmfiles)
+
+if isempty(existingSubjmfiles)
+    error('no subjmfiles found.');
+end;
+
+io.normalizeStructs()
 
 for i = 1:length(existingSubjmfiles)
+    clear subjinfo;
     eval(existingSubjmfiles(i,:));
+    %TODO: fix state_erregt_...
+    if subjinfo.first_block == 1
+        subjinfo.state_aroused_Rp = subjinfo.state_erregt_1;
+        subjinfo.state_mood_Rp = subjinfo.state_mood_1;
+        subjinfo.state_awake_Rp = subjinfo.state_wach_1;
+        subjinfo.state_tired_Rp = subjinfo.state_mued_1;
+        
+        subjinfo.state_aroused_Ts = subjinfo.state_erregt_2;
+        subjinfo.state_mood_Ts = subjinfo.state_mood_2;
+        subjinfo.state_awake_Ts = subjinfo.state_wach_2;
+        subjinfo.state_tired_Ts = subjinfo.state_mued_2;
+    else
+        subjinfo.state_aroused_Rp = subjinfo.state_erregt_2;
+        subjinfo.state_mood_Rp = subjinfo.state_mood_2;
+        subjinfo.state_awake_Rp = subjinfo.state_wach_2;
+        subjinfo.state_tired_Rp = subjinfo.state_mued_2;
+        
+        subjinfo.state_aroused_Ts = subjinfo.state_erregt_1;
+        subjinfo.state_mood_Ts = subjinfo.state_mood_1;
+        subjinfo.state_awake_Ts = subjinfo.state_wach_1;
+        subjinfo.state_tired_Ts = subjinfo.state_mued_1;
+    end;
+        subjinfo = rmfield(subjinfo, 'state_erregt_1');
+        subjinfo = rmfield(subjinfo, 'state_erregt_2');
+        subjinfo = rmfield(subjinfo, 'state_mood_1');
+        subjinfo = rmfield(subjinfo, 'state_mood_2');
+        subjinfo = rmfield(subjinfo, 'state_mued_1');
+        subjinfo = rmfield(subjinfo, 'state_mued_2');
+        subjinfo = rmfield(subjinfo, 'state_wach_1');
+        subjinfo = rmfield(subjinfo, 'state_wach_2');
     sub(i) = subjinfo;
 end;
 
 mfile_table = struct2table(sub);
+
+%% some optimizations
+mfile_table.geschlecht = categorical(mfile_table.geschlecht, [1, 2], {'male', 'female'});
+mfile_table.psyc = categorical(mfile_table.psyc, [0, 1], {'no', 'yes'});
+mfile_table.Properties.VariableNames{'geschlecht'} = 'sex';
+mfile_table.Properties.VariableNames{'alter'} = 'age';
+mfile_table.Properties.VariableNames{'psyc'} = 'studPsych';
+mfile_table.happy_letter = upper(mfile_table.happy_letter);
 
 %% some plotting
 % h1 = histogram(mfile_table.AN_prep_meanRT);
@@ -36,21 +80,72 @@ mfile_table = struct2table(sub);
 % y = pdf(pd,x_values);
 % plot(x_values,y);
 
+%% generate control table
+standard_vars = {'subjid', 'isExcluded_Rp', 'isExcluded_Ts'};
+exp = {'Rp', 'Ts'};
+stateVars = {'mood', 'awake', 'tired', 'aroused'};
+nContrVars = length(stateVars) * length(exp);
+k = 1;
+conVars = cell(1, nContrVars);
+for i = 1:length(stateVars)
+    for j = 1:length(exp)
+        conVars{k} = ['state_' stateVars{i} '_' exp{j}];
+        k = k+1;
+    end;
+end;
 
-%% generate pretty, informative table
+exp_pres = {'RP', 'TS_l'};
+stratVars = cell(1,14);
+k = 1;
+for i = 1:4
+    for j = 1:length(exp_pres);
+        stratVars{k} = [exp_pres{j} '_strat' num2str(i)];
+        k = k+1;
+    end;
+end;
+
+strO = {'stratC', 'stratCtxt', 'gefuehl', 'freu', 'aerg'};
+k = 9;
+for i = 1:length(strO)
+    for j = 1:length(exp_pres)
+        stratVars{k} = [exp_pres{j} '_' strO{i}];
+        k = k + 1;
+    end;
+end;
+
+T_contr = mfile_table(:, [standard_vars conVars stratVars]);
+writetable(T_contr, fullfile(tableDir, 'subjinfo_controls.csv'));
+
+%% generate data quality table
+
+qualVars = {'subjid', 'nRpTrials', 'nTsTrials', 'nErrors_Rp', 'nErrors_Ts', 'isExcluded_Rp', 'isExcluded_Ts'};
+T_qual = mfile_table(:, qualVars);
+
+T_qual.propErrors_Rp = T_qual.nErrors_Rp./T_qual.nRpTrials;
+T_qual.propErrors_Ts = T_qual.nErrors_Ts./T_qual.nTsTrials;
+
+finalVars = {'subjid', 'nRpTrials', 'nTsTrials', 'propErrors_Rp', 'propErrors_Ts', 'isExcluded_Rp', 'isExcluded_Ts'};
+
+T_qual = T_qual(:, finalVars);
+
+writetable(T_qual, fullfile(tableDir, 'subjinfo_quality.csv'));
+
+%% generate table with demographic information
+
 % TODO: get variance of each channel (using the ga object?)
 % be smarter about variable collection:
 
 % generate names of variables of interest programmatically
 
-standard_vars = {'subjid', 'isExcluded_Rp', 'isExcluded_Ts'};
-demo_vars = {'subjid', 'date', 'alter', 'geschlecht', 'psyc'};
+
+demo_vars = {'subjid', 'date', 'age', 'sex', 'studPsych'};
 
 T_demo = mfile_table(:, demo_vars);
+writetable(T_demo, fullfile(tableDir, 'subjinfo_demo.csv'));
 
 em = {'AN', 'HA'};
 valid = {'val', 'inval'};
-exp = {'Rp', 'Ts'};
+
 measures = {'meanRT', 'sdRT', 'nErrorTrials', 'nFpTrials', 'nOmissionTrials', ...
     'nHitTrials'};
 nTrialVars = length(measures) * length(exp) * length(valid) * length(em);
@@ -68,6 +163,7 @@ for i = 1:length(em)
 end
 
 T_behav = mfile_table(:,[standard_vars, trialVars]);
+writetable(T_behav, fullfile(tableDir, 'subjinfo_behav.csv'));
 
 sign_measures ={'MeanMaxAmp', 'MeanMaxAmpTime', 'SdMaxAmp'};
 nSignVars = length(sign_measures) * length(exp) * length(valid) * length(em);
@@ -110,10 +206,7 @@ mfile_table.nTsTrials = mfile_table.nFP_ts + mfile_table.nErrors_ts + mfile_tabl
 
 interesting_vars = [standard_vars'; ts_gen_vars'; rp_gen_vars'; ts_con_vars(:); rp_con_vars(:)];
 T = mfile_table(:, interesting_vars);
-T.geschlecht = categorical(T.geschlecht, [1, 2], {'male', 'female'});
-T.Properties.VariableNames{'geschlecht'} = 'sex';
-T.Properties.VariableNames{'alter'} = 'age';
-T.happy_letter = upper(T.happy_letter);
+
 T.propErrors_RP = T.nErrors./T.nRpTrials;
 T.propErrors_TS = T.nErrors_ts./T.nTsTrials;
 T.propHits_RP = T.nHits./T.nRpTrials;

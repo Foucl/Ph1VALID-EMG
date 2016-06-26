@@ -14,11 +14,12 @@ startRow = 7;
  firstlines = textscan(fid,         '%[^\n]',6);
  label = textscan(firstlines{1}{6}, '%[^\t]');
 label = label{1};
-label = label([20:59]);
+
 ncol  = numel(label);
 str   = ['%s%{yyyyMMdd}D%s%f%s%s%s%s', repmat('%f', [1 ncol-14]), '%s%s%f%s%s%s%f%f'];
 dataArray = textscan(fid, str, 'Delimiter', delimiter, 'ReturnOnError', false);
-
+label = label([20:59]);
+ncol  = numel(label);
 [time, frame] = dataArray{[9, 13]};
 start = find(frame == 1);
 start = start(2);

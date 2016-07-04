@@ -131,6 +131,7 @@ r_cor = corrcoef(T1_cor, T2) % immernoch r = 0.8
 %% more than one trial
 
 % get all valid anger trials
+Fs = 128;
 indices = find(ismember(dat.trialinfo, [51]));
 cfg = [];
 cfg.trials = indices;
@@ -160,12 +161,12 @@ end;
 %[lagmax, lagmax_ind] = max(abs
 %% select three trials: highest, lowest, closest to zero
 
-[rmax, rmax_ind] = max(abs(timeDiff));
+[rmax, rmax_ind] = min(r_alg);
 [rmin, rmin_ind] = min(r_alg);
 [rzero, rzero_ind] = min(abs(r_alg)); % the same as rmin - problem trial?
 
-S_fac = dat.trial{rmax_ind}(3,:);
-S_emg = dat.trial{rmax_ind}(4,:);
+S_fac = dat.trial{rmax_ind}(2,:);
+S_emg = dat.trial{rmax_ind}(3,:);
 Fs = 128;
 
 [C1,lag1] = xcorr(S_fac,S_emg);
@@ -173,11 +174,11 @@ Fs = 128;
 figure
 ax(1) = subplot(311);
 plot((0:numel(S_emg)-1)/Fs,S_emg,'k');
-ylabel('EMG: Corrugator (normalized)');
+ylabel('EMG: Corrugator');
 grid on
 ax(2) = subplot(312);
 plot((0:numel(S_fac)-1)/Fs,S_fac,'r');
-ylabel('FACET: Anger Evidence Score (normalized)');
+ylabel('FACET: Anger Evidence Score');
 grid on
 ax(3) = subplot(313);
 plot(lag1/Fs,C1,'k');

@@ -22,9 +22,9 @@ allTriggers = dataArray{62}(~isnan(dataArray{62}));
 trInd = ~isnan(dataArray{62});
 
 [time, frame, typ, ev] = dataArray{[10, 13,60, 62]};
-ev = ev(trInd);
-time = time(trInd);
-typ = typ(trInd);
-frame = frame(trInd);
-
+ev = num2cell(ev(trInd))';
+time = num2cell(time(trInd))';
+typ = typ(trInd)';
+frame = num2cell(frame(trInd))';
+fclose(fid);
 event  = struct('sample', frame, 'timestamp', time, 'type', typ, 'value', ev);

@@ -27,7 +27,8 @@ start = start(2);
 dataArray = dataArray([20:59]);
 dat = cell2mat(dataArray);
 dat = dat(start:end,:);
-dat = dat(begsample:endsample, chanindx);
+fclose(fid);
+dat = dat(begsample:endsample, chanindx)';
 
 %TODO: get baseline from header and remove it from (evidence scores?)
 

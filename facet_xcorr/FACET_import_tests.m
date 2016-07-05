@@ -3,14 +3,19 @@
 
 %% setup paths
 SessionInfo = ph1valid00_setup;
+addpath(fullfile(SessionInfo.projectBaseDir, 'facet_xcorr'));
 fc_dir = fullfile(SessionInfo.dataDir, 'FACET');
 filename = fullfile(fc_dir, 'Dump046_VP46.txt');
 emg_file = fullfile(SessionInfo.emgRawDir, 'VP46', 'VP46_20160610-Deci.bdf');
 
+%% setup parameters
+prestim = 2.3;
+poststim = 4.5;
+
 %% get EMG data (so FACET data can be upsampled)
 cfg = [];
-cfg.trialdef.prestim = 2;
-cfg.trialdef.poststim = 2.5;
+cfg.trialdef.prestim = prestim;
+cfg.trialdef.poststim = poststim;
 cfg.trialfun = 'trialfun_ph1valid_Rp';
 cfg.dataset = emg_file;
 cfg = ft_definetrial(cfg);
@@ -37,8 +42,8 @@ data_emg.trial = cellfun(@abs,data_emg.trial, 'UniformOutput', false);
 %% FACET-prpro
 % 1.  read trial data and preprocess without filtering
 cfg = [];
-cfg.trialdef.prestim = 2;
-cfg.trialdef.poststim = 2.5;
+cfg.trialdef.prestim = prestim;
+cfg.trialdef.poststim = poststim;
 cfg.trialfun = 'trialfun_ph1valid_Rp_facet';
 cfg.dataformat = 'facet_txt';
 cfg.headerformat = 'facet_txt';
@@ -52,7 +57,7 @@ cfg.channel = {'Joy Evidence', 'Anger Evidence'};
 
 data = ft_preprocessing(cfg);
 
-% 2. upsample to EMG-sampling rate
+% 2. upsample to match EMG-sampling rate
 cfg.time = data_emg.time;
 data = ft_resampledata(cfg, data); % or rename to data_us?
 
@@ -69,64 +74,30 @@ data = ft_preprocessing(cfg, data);
 dat = ft_appenddata([], data, data_emg);
 
 % z-transform amplitudes
-dat.trial = cellfun(@ft_preproc_standardize, dat.trial, 'UniformOutput', false);
+% do that across trials and not within (makes the greater variance of facet
+% data visible)
+% dat.trial = cellfun(@ft_preproc_standardize, dat.trial, 'UniformOutput', false);
+datArr = ft_preproc_standardize([dat.trial{:}]);
+datArr = mat2cell(datArr,4,repmat(870,1,200));
+dat.trial = datArr;
 
 % inspect
 cfg = [];
 cfg.channel = {'Cor', 'Anger Evidence'};
 ft_databrowser(cfg, dat);
 
-%% try cross correlations
+%% concatenate all trials
 
-% with first trial only:
-dat_corr = dat.trial{1}; % 4x576 array: Joy/Anger Evidence, Cor, Zyg
-dat_corr_labels = dat.label;
-
-% because I'm lazy: use variable names of Matlab xcorr-tutorial
-T1 = dat_corr(3,:);
-T2 = dat_corr(2,:);
-Fs1 = 128;
-Fs2 = Fs1;
-Fs = Fs1;
-
-% display first trial
-figure
-ax(1) = subplot(311);
-plot((0:numel(T1)-1)/Fs1,T1,'k');
-ylabel('EMG: Corrugator');
-grid on
-ax(2) = subplot(312);
-plot((0:numel(T2)-1)/Fs2,T2,'r');
-ylabel('FACET: Anger Evidence');
-grid on
-
-%axis([0 1.61 -4 4])
-
-% cross correlate Corrugator & Anger Evidence in first trial
-[C1,lag1] = xcorr(T1,T2);
-
-% visualize the cross-correlation
-ax(3) = subplot(313);
-plot(lag1/Fs,C1,'k');
-ylabel('Cross Correlation');
-grid on
-xlabel('Time (secs)');
-linkaxes(ax(1:2),'x');
-
-% check lag
-[~,I] = max(abs(C1));
-SampleDiff = lag1(I)
-timeDiff = SampleDiff/Fs
-% -> minimal time difference!! facet is only 21 samples / 0.0026s ahead
-% also via finddeley(T1, T2)
-
-% calculate pearson correlation between uncorrected signals
-r = corrcoef(T1, T2); % r = 0.8
-
-% correct the (minimal) timelag
-T1_cor = alignsignals(T1, T2);
-r_cor = corrcoef(T1_cor, T2) % immernoch r = 0.8
-
+data_concat = zeros(4,870*200);
+time_concat = zeros(1,870*200);
+for i = 1:length(dat.trial)
+    data_concat(:,i*870-869:i*870) = dat.trial{i};
+    time_concat(1,i*870-869:i*870) = dat.time{i}*i;
+end;
+dat_c = dat;
+dat_c.trial = {data_concat};
+dat_c.time = {time_concat};
+%ft_databrowser([], dat_c);
 
 %% more than one trial
 
@@ -161,7 +132,7 @@ end;
 %[lagmax, lagmax_ind] = max(abs
 %% select three trials: highest, lowest, closest to zero
 
-[rmax, rmax_ind] = min(r_alg);
+[rmax, rmax_ind] = max(r_alg);
 [rmin, rmin_ind] = min(r_alg);
 [rzero, rzero_ind] = min(abs(r_alg)); % the same as rmin - problem trial?
 
@@ -171,7 +142,7 @@ Fs = 128;
 
 [C1,lag1] = xcorr(S_fac,S_emg);
 
-figure
+figure('Name','Reaction Time Grand Average','NumberTitle','off','Position',[450 450 800 400]);
 ax(1) = subplot(311);
 plot((0:numel(S_emg)-1)/Fs,S_emg,'k');
 ylabel('EMG: Corrugator');
@@ -186,6 +157,7 @@ ylabel('Cross Correlation');
 grid on
 xlabel('Time (sec)');
 linkaxes(ax(1:2),'x');
+
 
 r_alg(rmax_ind)
 r_raw(rmax_ind)

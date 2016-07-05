@@ -14,17 +14,28 @@ startRow = 7;
  firstlines = textscan(fid,         '%[^\n]',6);
  label = textscan(firstlines{1}{6}, '%[^\t]');
 label = label{1};
-
+label = label(9:59);
 ncol  = numel(label);
-str   = ['%s%{yyyyMMdd}D%s%f%s%s%s%s', repmat('%f', [1 ncol-14]), '%s%s%f%s%s%s%f%f'];
+% str   = ['%s%{yyyyMMdd}D%s%f%s%s%s%s', repmat('%f', [1 ncol-14]), '%s%s%f%s%s%s%f%f'];
+% dataArray = textscan(fid, str, 'Delimiter', delimiter, 'ReturnOnError', false);
+% label = label([20:59]);
+% ncol  = numel(label);
+% [time, frame] = dataArray{[9, 13]};
+% start = find(frame == 1);
+% start = start(2);
+% time = time(start:end);
+% frame = frame(start:end);
+str   = ['%*s%*s%*s%*s%*s%*s%*s%*s', repmat('%f', [1 ncol]), '%*s%*s%*s%*s%*s%*s%*s%*s'];
 dataArray = textscan(fid, str, 'Delimiter', delimiter, 'ReturnOnError', false);
-label = label([20:59]);
-ncol  = numel(label);
-[time, frame] = dataArray{[9, 13]};
+
+fclose(fid);
+
+[time, frame] = dataArray{[1, 5]};
 start = find(frame == 1);
 start = start(2);
 time = time(start:end);
 frame = frame(start:end);
+
 
 nSmpl = size(time, 1);
 nMs = time(nSmpl);
@@ -33,12 +44,16 @@ nFrame = frame(nSmpl);
 fps = nFrame/nS;
 Fs = fps;
 
+label = label(12:end);
+
+
 % create the output
 hdr          = [];
+hdr.offset = start-1;
 hdr.Fs       = Fs;
 hdr.label    = label;
 hdr.nTrials  = 1;
 hdr.nSamples = nSmpl;
 hdr.nSamplesPre = 0;
-hdr.nChans   = ncol;
+hdr.nChans   = size(label,1);
 %hdr.time     = time; % events in the raw event file have both a sample and a time stamp

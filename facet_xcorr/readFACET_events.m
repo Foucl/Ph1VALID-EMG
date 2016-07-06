@@ -18,10 +18,21 @@ ncol  = numel(label);
 str   = ['%s%{yyyyMMdd}D%s%f%s%s%s%s', repmat('%f', [1 ncol-14]), '%s%s%f%s%s%s%f%f'];
 dataArray = textscan(fid, str, 'Delimiter', delimiter, 'ReturnOnError', false);
 
-allTriggers = dataArray{62}(~isnan(dataArray{62}));
-trInd = ~isnan(dataArray{62});
+tmp = strfind(label,'MediaTime');
+indTime = find(not(cellfun('isempty', tmp)));
 
-[time, frame, typ, ev] = dataArray{[10, 13,60, 62]};
+tmp = strfind(label,'FrameNo');
+indFrame = find(not(cellfun('isempty', tmp)));
+
+tmp = strfind(label,'LiveMarker');
+indTyp = find(not(cellfun('isempty', tmp)));
+
+tmp = strfind(label,'MarkerText');
+indEv = find(not(cellfun('isempty', tmp)));
+
+trInd = ~isnan(dataArray{indEv});
+
+[time, frame, typ, ev] = dataArray{[indTime, indFrame,indTyp, indEv]};
 ev = num2cell(ev(trInd))';
 time = num2cell(time(trInd))';
 typ = typ(trInd)';

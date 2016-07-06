@@ -14,7 +14,8 @@ startRow = 7;
  firstlines = textscan(fid,         '%[^\n]',6);
  label = textscan(firstlines{1}{6}, '%[^\t]');
 label = label{1};
-label = label(9:59);
+%label = label(9:59);
+label = label(9:end-6);
 ncol  = numel(label);
 % str   = ['%s%{yyyyMMdd}D%s%f%s%s%s%s', repmat('%f', [1 ncol-14]), '%s%s%f%s%s%s%f%f'];
 % dataArray = textscan(fid, str, 'Delimiter', delimiter, 'ReturnOnError', false);
@@ -29,8 +30,13 @@ str   = ['%*s%*s%*s%*s%*s%*s%*s%*s', repmat('%f', [1 ncol]), '%*s%*s%*s%*s%*s%*s
 dataArray = textscan(fid, str, 'Delimiter', delimiter, 'ReturnOnError', false);
 
 fclose(fid);
+tmp = strfind(label,'MediaTime');
+indTime = find(not(cellfun('isempty', tmp)));
 
-[time, frame] = dataArray{[1, 5]};
+tmp = strfind(label,'FrameNo');
+indFrame = find(not(cellfun('isempty', tmp)));
+
+[time, frame] = dataArray{[indTime, indFrame]};
 start = find(frame == 1);
 start = start(2);
 time = time(start:end);

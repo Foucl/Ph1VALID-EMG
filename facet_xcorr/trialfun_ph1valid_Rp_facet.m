@@ -10,7 +10,7 @@ trl = [];
 val = [];
 sel = true(1, length(event));
 for i=1:numel(event)
-    sel(i) = sel(i) && ismatch(event(i).type, 'Presentation_XML');
+    sel(i) = sel(i) && (ismatch(event(i).type, 'Presentation_XML') || ismatch(event(i).type, 'Presentation_Picture'));
 end
 for i=1:numel(event)
     sel(i) = sel(i) && ismatch(event(i).value, [51 52 62 61]);
@@ -19,10 +19,6 @@ sel = find(sel);
 
 for i=sel
   % catch empty fields in the event table and interpret them meaningfully
-  if isempty(event(i).offset)
-    % time axis has no offset relative to the event
-    event(i).offset = 0;
-  end
   if isempty(event(i).duration)
     % the event does not specify a duration
     event(i).duration = 0;

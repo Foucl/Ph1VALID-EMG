@@ -1,0 +1,1 @@
+baseDir = fullfile(userDir, 'cd', 'Ph1VALID-EMG');

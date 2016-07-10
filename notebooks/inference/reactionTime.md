@@ -1,7 +1,14 @@
-# Testing effects on reaction time
+# DV Reaction Time
+
+## Marginal Distributions
+(with smoothed proability density kernel)
+
+![](../../reports/figures/rtDistributions.png)
+
+## Testing effects on reaction time
 rmANOVA with rt = intercept + emotion + validity + emotion*validity
 
-## Response Priming
+### Response Priming
 |Effect      | DFn| DFd|     SSn|   SSd|       F|      p|p<.05 |    $\eta^2$|
 |:-----------|---:|---:|-------:|-----:|-------:|------:|:-----|------:|
 |(Intercept) |   1|  41| 76.4856| 3.130| 1002.04| 0.0000|*     | 0.9451|
@@ -11,12 +18,12 @@ rmANOVA with rt = intercept + emotion + validity + emotion*validity
 
 ![](../../reports/figures/Rp_interaction_rt.png)
 
-## Response Switching
+### Response Switching
 |Effect      | DFn| DFd|        SSn|       SSd|           F|         p|p<.05 |       $\eta^2$|
 |:-----------|---:|---:|----------:|---------:|-----------:|---------:|:-----|---------:|
-|(Intercept) |   1|  41| 41.7095638| 1.3723817| 1246.076175| 0.0000000|*     | 0.9573|
-|em          |   1|  41|  0.7591773| 0.2926622|  106.355605| 0.0000000|*     | 0.2900|
-|cond        |   1|  41|  0.0027717| 0.0993028|    1.144368| 0.2909888|      | 0.0015|
-|em:cond     |   1|  41|  0.0169572| 0.0943336|    7.370055| 0.0096594|*     | 0.0090|
+|(Intercept) |   1|  41| 41.7095638| 1.3723817| 1246.076175| 0.0000|*     | 0.9573|
+|em          |   1|  41|  0.7591773| 0.2926622|  106.355605| 0.0000|*     | 0.2900|
+|cond        |   1|  41|  0.0027717| 0.0993028|    1.144368| 0.2910|      | 0.0015|
+|em:cond     |   1|  41|  0.0169572| 0.0943336|    7.370055| 0.0097|*     | 0.0090|
 
 ![](../../reports/figures/Ts_interaction_rt.png)

@@ -1,9 +1,10 @@
 # Testing effects on proportion of Hit, Omission and False Positive Trials
 rmANOVA with propX = intercept + emotion + validity + emotion*validity
+error Bars = standard error of the mean
 
 ## Proportion of Hits
 ### Response Priming
-|Effect      | DFn| DFd|     SSn|   SSd|         F|     p|p<.05 |   ges|
+|Effect      | DFn| DFd|     SSn|   SSd|         F|     p|p<.05 |  $\eta^2$|
 |:-----------|---:|---:|-------:|-----:|---------:|-----:|:-----|-----:|
 |(Intercept) |   1|  41| 162.962| 0.097| 68882.152| 0.000|*     | 0.998|
 |em          |   1|  41|   0.012| 0.080|     6.229| 0.017|*     | 0.046|
@@ -13,7 +14,7 @@ rmANOVA with propX = intercept + emotion + validity + emotion*validity
 ![](../../reports/figures/Rp_interaction_propHit.png)
 
 ### Response Switching
-|Effect      | DFn| DFd|     SSn|   SSd|         F|     p|p<.05 |   ges|
+|Effect      | DFn| DFd|     SSn|   SSd|         F|     p|p<.05 |   $\eta^2$|
 |:-----------|---:|---:|-------:|-----:|---------:|-----:|:-----|-----:|
 |(Intercept) |   1|  41| 163.897| 0.074| 90649.419| 0.000|*     | 0.999|
 |em          |   1|  41|   0.019| 0.069|    11.036| 0.002|*     | 0.101|
@@ -24,7 +25,7 @@ rmANOVA with propX = intercept + emotion + validity + emotion*validity
 
 ## Proportion of Omissions
 ### Response Priming
-|Effect      | DFn| DFd|   SSn|   SSd|     F|     p|p<.05 |   ges|
+|Effect      | DFn| DFd|   SSn|   SSd|     F|     p|p<.05 |   $\eta^2$|
 |:-----------|---:|---:|-----:|-----:|-----:|-----:|:-----|-----:|
 |(Intercept) |   1|  41| 0.002| 0.010| 6.576| 0.014|*     | 0.048|
 |em          |   1|  41| 0.000| 0.008| 1.256| 0.269|      | 0.007|
@@ -34,7 +35,7 @@ rmANOVA with propX = intercept + emotion + validity + emotion*validity
 ![](../../reports/figures/Rp_interaction_propOm.png)
 
 ### Response Switching
-|Effect      | DFn| DFd| SSn|   SSd|      F|     p|p<.05 |   ges|
+|Effect      | DFn| DFd| SSn|   SSd|      F|     p|p<.05 |   $\eta^2$|
 |:-----------|---:|---:|---:|-----:|------:|-----:|:-----|-----:|
 |(Intercept) |   1|  41|   0| 0.001| 10.231| 0.003|*     | 0.086|
 |em          |   1|  41|   0| 0.001|  0.991| 0.325|      | 0.006|
@@ -45,7 +46,7 @@ rmANOVA with propX = intercept + emotion + validity + emotion*validity
 
 ## Proportion of False Positives
 ### Response Priming
-|Effect      | DFn| DFd|   SSn|   SSd|      F|     p|p<.05 |   ges|
+|Effect      | DFn| DFd|   SSn|   SSd|      F|     p|p<.05 |   $\eta^2$|
 |:-----------|---:|---:|-----:|-----:|------:|-----:|:-----|-----:|
 |(Intercept) |   1|  41| 0.025| 0.064| 15.738| 0.000|*     | 0.132|
 |em          |   1|  41| 0.009| 0.052|  7.036| 0.011|*     | 0.053|
@@ -55,7 +56,7 @@ rmANOVA with propX = intercept + emotion + validity + emotion*validity
 ![](../../reports/figures/Rp_interaction_propFP.png)
 
 ### Response Switching
-|Effect      | DFn| DFd|   SSn|   SSd|      F|     p|p<.05 |   ges|
+|Effect      | DFn| DFd|   SSn|   SSd|      F|     p|p<.05 |   $\eta^2$|
 |:-----------|---:|---:|-----:|-----:|------:|-----:|:-----|-----:|
 |(Intercept) |   1|  41| 0.020| 0.071| 11.332| 0.002|*     | 0.108|
 |em          |   1|  41| 0.017| 0.072|  9.895| 0.003|*     | 0.097|

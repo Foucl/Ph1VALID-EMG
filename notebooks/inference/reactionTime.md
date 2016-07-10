@@ -1,7 +1,7 @@
 # DV Reaction Time
 
 ## Marginal Distributions
-(with smoothed proability density kernel)
+(with smoothed probability density kernel)
 
 ![](../../reports/figures/rtDistributions.png)
 

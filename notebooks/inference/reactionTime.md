@@ -6,7 +6,8 @@
 ![](../../reports/figures/rtDistributions.png)
 
 ## Testing effects on reaction time
-rmANOVA with rt = intercept + emotion + validity + emotion*validity
+rmANOVA with rt = intercept + emotion + validity + emotion*validity  
+error Bars = standard error of the mean
 
 ### Response Priming
 |Effect      | DFn| DFd|     SSn|   SSd|       F|      p|p<.05 |    $\eta^2$|

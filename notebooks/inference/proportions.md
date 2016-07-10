@@ -1,5 +1,6 @@
 # Testing effects on proportion of Hit, Omission and False Positive Trials
-rmANOVA with propX = intercept + emotion + validity + emotion*validity
+
+rmANOVA with propX = intercept + emotion + validity + emotion*validity  
 error Bars = standard error of the mean
 
 ## Proportion of Hits

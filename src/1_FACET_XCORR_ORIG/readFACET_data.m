@@ -51,6 +51,6 @@ dat( dat<0 )=0;
 
 dat = dat(:, chanindx)';
 
-%TODO: get baseline from header and remove it from (evidence scores?)
+%TODO:0 get baseline from header and remove it from (evidence scores?)
 
 

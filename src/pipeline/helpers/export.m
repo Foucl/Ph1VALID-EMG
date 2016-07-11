@@ -16,6 +16,12 @@ classdef export
             vars = input(outidx);
         end
         
+        function [vars, outidx] = cellGrep(C, term)
+            input = C;
+            outidx = cellfun('length', regexp(input, term, 'ignorecase')) > 0;
+            vars = input(outidx);
+        end
+        
         function arrayHist(T, plotVars, binWidth, x_values, inner_padding)
             nPlots = numel(plotVars)/2;
             for i = 1:(nPlots*2)

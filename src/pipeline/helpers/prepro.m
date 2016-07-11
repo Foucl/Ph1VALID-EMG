@@ -15,13 +15,22 @@ classdef prepro
                 conds.Ts = {'AN_val' 'AN_inval' 'HA_val' 'HA_inval';
                     [141 142] [151:153] [241 242] [251:253];
                     1 1 2 2};
+                
+                conds.Ts_fine = {'AN_val_1' 'AN_val_2' 'AN_inval_1' 'AN_inval_2' 'AN_inval_3' 'HA_val_1' 'HA_val_2' 'HA_inval_1' 'HA_inval_2' 'HA_inval_3';
+                    141 142 151 152 153 241 242 251 252 253;
+                    1 1 1 1 1 2 2 2 2 2};
             else
                 conds.Ts = {'AN_val' 'AN_inval' 'HA_val' 'HA_inval';
                     [241 242] [251:253] [141 142] [151:153] ;
                     1 1 2 2};
+                
+                conds.Ts_fine = {'AN_val_1' 'AN_val_2' 'AN_inval_1' 'AN_inval_2' 'AN_inval_3' 'HA_val_1' 'HA_val_2' 'HA_inval_1' 'HA_inval_2' 'HA_inval_3';
+                    241 242 251 252 253 141 142 151 152 153;
+                    1 1 1 1 1 2 2 2 2 2};
             end;
         end
-        function [ dataFile ] = validate( subjid, experiment, SessionInfo )
+        
+        function [ dataFile ] = validate( subjid, ~, SessionInfo )
             %PH1VALID_VALIDATERP Checks Validity of RP segment in EMG data
             %   returns file handle
             if strcmp(subjid, 'VP01') 
@@ -63,7 +72,11 @@ classdef prepro
             cfg = [];
             cfg.trialdef.prestim = sgm(1);
             cfg.trialdef.poststim = sgm(2);
-            cfg.trialfun = ['trialfun_ph1valid_' experiment];
+            if strcmpi(experiment, 'Ts_fine')
+                cfg.trialfun = 'trialfun_ph1valid_Ts';
+            else
+                cfg.trialfun = ['trialfun_ph1valid_' experiment];
+            end;
             cfg.dataset = dataFile;
             try
                 cfg = ft_definetrial(cfg);
@@ -130,8 +143,11 @@ classdef prepro
         
         function [ Info, data ] = getErrors(data, Info, conds, experiment)
             nErrors = 0;
-            ch_wrong = [conds{3,[3 4 1 2]}];
-            con_wrong = conds(1, [3 4 1 2]);
+            conds_half1 = conds(:,1:end/2); 
+            conds_half2 = conds(:,(end/2 + 1):end);
+            ch_wrong = [conds_half2{3,:} conds_half1{3,:}];
+            con_wrong = [conds_half2(1,:) conds_half1(1,:)];
+            
             allErrors = cell(1,4);
             for i = 1:size(conds, 2)
                 con = conds{1,i};

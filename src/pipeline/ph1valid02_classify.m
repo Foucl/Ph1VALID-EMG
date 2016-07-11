@@ -35,8 +35,14 @@ end;
 
 conds = prepro.defineConditions(subjinfo);
 conds = conds.(experiment);
-    
-con_wrong = conds(1, [3 4 1 2]);
+
+conds_half1 = conds(:,1:end/2); 
+conds_half2 = conds(:,(end/2 + 1):end);
+ch_wrong = [conds_half2{3,:} conds_half1{3,:}];
+con_wrong = [conds_half2(1,:) conds_half1(1,:)];
+
+
+%con_wrong = conds(1, [3 4 1 2]);
 th = nan(1,4);
 th_o = nan(1,4);
 
@@ -52,13 +58,14 @@ nOmissions = 0;
 nFP = 0;
 nHits = 0;
 
+nCon = size(conds, 2);
 Info = [];
 data.trialinfo(:,3) = nan;
-ch_wrong = [conds{3,[3 4 1 2]}];
-allOmissions = cell(1,4);
-allFp = cell(1,4);
-allHits = cell(1,4);
-for i = 1:size(conds, 2)
+%ch_wrong = [conds{3,[3 4 1 2]}];
+allOmissions = cell(1,nCon);
+allFp = cell(1,nCon);
+allHits = cell(1,nCon);
+for i = 1:nCon
     con = conds{1,i};
     trg = conds{2,i};
     chani = conds{3,i};
@@ -140,9 +147,13 @@ for i = 1:size(conds, 2)
 end;
 
 % for factor emotion
+% DONE:30 fix for Ts_fine
+
 em = {'AN', 'HA'};
-em{2,1} = [conds{2,1} conds{2,2}];
-em{2,2} = [conds{2,3} conds{2,4}];
+%em{2,1} = [conds{2,1} conds{2,2}];
+em{2,1} = [conds{2,1:end/2}];
+%em{2,2} = [conds{2,3} conds{2,4}];
+em{2,2} = [conds{2,(end/2 + 1):end}];
 for i = 1:size(em, 2)
     con = em{1,i};
     trg = em{2,i};
@@ -156,9 +167,13 @@ for i = 1:size(em, 2)
 end;
 
 % for factor preparedness/validity
+% DONE:60 fix for Ts_fine: even
 val = {'val', 'inval'};
-val{2,1} = [conds{2,1} conds{2,3}];
-val{2,2} = [conds{2,2} conds{2,4}];
+[~, idx_inval] = export.cellGrep(conds(1,:), 'inval');
+[~, idx_val] = export.cellGrep(conds(1,:), '_val');
+
+val{2,1} = [conds{2,idx_val}];
+val{2,2} = [conds{2,idx_inval}];
 for i = 1:size(val, 2)
     con = val{1,i};
     trg = val{2,i};

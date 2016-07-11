@@ -22,14 +22,14 @@ function [ data, Info ] = ph1valid01_prepro( subjid, experiment )
 %% parsing inputs
 if ~exist('subjid','var')
     warning('No subjid provided; using VP16 for testing purposes');
-    subjid = 'VP16';
+    subjid = 'VP46';
     warn = true;
 else
     warn = false;
 end;
 
 if ~exist('experiment','var')
-    experiment = 'Rp'; 
+    experiment = 'Ts_fine'; 
 end;
 
 %% set defaults according to experiment
@@ -40,7 +40,7 @@ if strcmpi(experiment, 'rp') || strcmpi(experiment, 'priming') || strncmpi(exper
 else %switching
     bl = [-0.1 0];
     sgm = [0.6 2.6];
-    experiment = 'Ts';
+    %experiment = 'Ts';
 end;
 
 
@@ -68,9 +68,17 @@ end;
 %% collect some basic information on the dataset
 eval([subjid '_subjinfo']);
 
+% DONE:50 differentiate further in Switching and Repetition Trials
 conds = prepro.defineConditions(subjinfo);
 
 conds = conds.(experiment);
+
+% if strcmpi(experiment, 'Rp')
+%     conds = conds.(experiment);
+% else
+%     conds = conds.Ts_fine;
+%     experiment = 'Ts_fine';
+% end;
 
 % get thresholds and Amplitudes
 

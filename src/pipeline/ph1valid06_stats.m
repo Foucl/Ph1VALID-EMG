@@ -22,7 +22,7 @@ io.normalizeStructs()
 for i = 1:length(existingSubjmfiles)
     clear subjinfo;
     eval(existingSubjmfiles(i,:));
-    %TODO: fix state_erregt_...
+    %DONE:0 fix state_erregt_...
     if subjinfo.first_block == 1
         subjinfo.state_aroused_Rp = subjinfo.state_erregt_1;
         subjinfo.state_mood_Rp = subjinfo.state_mood_1;
@@ -65,6 +65,13 @@ mfile_table.Properties.VariableNames{'alter'} = 'age';
 mfile_table.Properties.VariableNames{'psyc'} = 'studPsych';
 mfile_table.happy_letter = upper(mfile_table.happy_letter);
 
+
+%% setup for all tables to be exported
+standard_vars = {'subjid', 'isExcluded_Rp', 'isExcluded_Ts'};
+exp = {'Rp', 'Ts'};
+valid = {'val', 'inval'};
+em = {'AN', 'HA'};
+
 %% some plotting
 % h1 = histogram(mfile_table.AN_prep_meanRT);
 % hold on
@@ -81,8 +88,7 @@ mfile_table.happy_letter = upper(mfile_table.happy_letter);
 % plot(x_values,y);
 
 %% generate control table
-standard_vars = {'subjid', 'isExcluded_Rp', 'isExcluded_Ts'};
-exp = {'Rp', 'Ts'};
+
 stateVars = {'mood', 'awake', 'tired', 'aroused'};
 nContrVars = length(stateVars) * length(exp);
 k = 1;
@@ -132,7 +138,7 @@ writetable(T_qual, fullfile(tableDir, 'subjinfo_quality.csv'));
 
 %% generate table with demographic information
 
-% TODO: get variance of each channel (using the ga object?)
+% TODO:10 get variance of each channel (using the ga object?)
 % be smarter about variable collection:
 
 % generate names of variables of interest programmatically
@@ -186,10 +192,11 @@ for i = 1:length(em)
 end
 
 T_sign = mfile_table(:,[standard_vars, signVars]);
+writetable(T_sign, fullfile(tableDir, 'subjinfo_amps.csv'));
 
 %% state & other self report measures from experimental run
-% TODO: map state (mood, ruhig, erregt, wach, mued) to correct experiment
-% TODO: get correct 'is_excluded_{experiment}' values during prepro
+% DONE:40 map state (mood, ruhig, erregt, wach, mued) to correct experiment
+% DONE:10 get correct 'is_excluded_{experiment}' values during prepro
 
 rp_gen_vars = {'nRpTrials', 'nErrors', 'nFP', 'nOmissions', 'nHits'};
 ts_gen_vars = ['nTsTrials', cellfun(@(x) [x '_ts'], rp_gen_vars(2:end), 'Uniform', 0)];
@@ -286,7 +293,7 @@ T_fp_ts = T(:,fp_vars_ts);
 % T2.em = em;
 % T2.val = val;
 
-%% doch wide: funktionierender Code für RT
+%% doch wide: funktionierender Code fï¿½r RT
 em = categorical({'AN'; 'AN'; 'HA'; 'HA'; });
 val = categorical({'prep'; 'unprep'; 'prep'; 'unprep'});
 val_ts = categorical({'rep'; 'swt'; 'rep'; 'swt'});

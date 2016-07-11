@@ -77,4 +77,4 @@ target/
 /data/
 
 # exclude external toolbox (fieldtrip)
-/src/toolboxes/
+/src/.external/

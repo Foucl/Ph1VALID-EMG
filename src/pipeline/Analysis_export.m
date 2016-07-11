@@ -56,11 +56,11 @@ end;
 
 %% plot interactions
 
-figure
+%figure
 %subplot(2,2,1)       % add first plot in 2 x 1 grid
-plotprofile(rmT.rt_Rp, 'val', 'Group', 'em');
-title('Reaction Times')
+%plotprofile(rmT.rt_Rp, 'val', 'Group', 'em');
+%title('Reaction Times')
 
 %% calculate ANOVA table itself
 
-myanova = ranova(rmT.rt_Rp, 'WithinModel','em*val')
+%myanova = ranova(rmT.rt_Rp, 'WithinModel','em*val')

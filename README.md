@@ -3,8 +3,13 @@ Ph1VALID-EMG
 
 Analysis pipeline and results/reports for experiment ph1valid
 
+"languages": {
+  ".m":           {"name": "matlab", "symbol": "%", "block": {"start":"%{", "end":"%}", "ignore":"%"}},
+},
+
 Project Organization
 ------------
+
 
     ├── LICENSE
     ├── Makefile           <- Makefile with commands like `make data` or `make train`

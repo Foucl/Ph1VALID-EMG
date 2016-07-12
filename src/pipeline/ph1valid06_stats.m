@@ -69,8 +69,13 @@ mfile_table.happy_letter = upper(mfile_table.happy_letter);
 %% setup for all tables to be exported
 standard_vars = {'subjid', 'isExcluded_Rp', 'isExcluded_Ts'};
 exp = {'Rp', 'Ts'};
+exp_all = {'Rp', 'Ts', 'Ts_fine'};
+valid_fine = {'val_1', 'val_2', 'inval_1', 'inval_2', 'inval_3'};
 valid = {'val', 'inval'};
 em = {'AN', 'HA'};
+
+conds = {exp{:}, 'Ts_fine';
+    valid, valid, valid_fine};
 
 %% some plotting
 % h1 = histogram(mfile_table.AN_prep_meanRT);
@@ -152,24 +157,24 @@ writetable(T_demo, fullfile(tableDir, 'subjinfo_demo.csv'));
 
 %% behav data
 
-em = {'AN', 'HA'};
-valid = {'val', 'inval'};
+%em = {'AN', 'HA'};
+%valid = {'val', 'inval'};
 
 measures = {'meanRT', 'sdRT', 'nErrorTrials', 'nFpTrials', 'nOmissionTrials', ...
     'nHitTrials', 'propHit', 'propFP', 'propOm'};
-nTrialVars = length(measures) * length(exp) * length(valid) * length(em);
-m = 1;
+nTrialVars = (length(exp) * numel(valid) + numel([conds{2,3}])) * length(em) * length(measures);
+n = 1;
 trialVars = cell(1, nTrialVars);
 for i = 1:length(em)
-    for j = 1:length(valid)
-        for k = 1:length(exp)
-            for l = 1:length(measures)
-                trialVars{m} = [em{i} '_' valid{j} '_' measures{l} '_' exp{k}];
-                m = m + 1 ;
-            end
-        end
-    end
-end
+    for j = 1:length(conds(1,:))
+        for l = 1:length(measures)
+            for m = 1:length(conds{2,j})
+                trialVars{n} = [em{i} '_' conds{2,j}{m} '_' measures{l} '_' conds{1,j}];
+                 n = n + 1 ;
+            end;
+        end;
+    end;
+end;
 
 T_behav = mfile_table(:,[standard_vars, trialVars]);
 writetable(T_behav, fullfile(tableDir, 'subjinfo_behav.csv'));
@@ -177,19 +182,22 @@ writetable(T_behav, fullfile(tableDir, 'subjinfo_behav.csv'));
 
 %% signal?
 sign_measures ={'MeanMaxAmp', 'MeanMaxAmpTime', 'SdMaxAmp'};
-nSignVars = length(sign_measures) * length(exp) * length(valid) * length(em);
-m = 1;
+%nSignVars = length(sign_measures) * length(exp) * length(valid) * length(em);
+nSignVars = (length(exp) * numel(valid) + numel([conds{2,3}])) * length(em) * length(sign_measures);
+
+n = 1;
 signVars = cell(1, nSignVars);
 for i = 1:length(em)
-    for j = 1:length(valid)
-        for k = 1:length(exp)
-            for l = 1:length(sign_measures)
-                signVars{m} = [em{i} '_' valid{j} '_' sign_measures{l} '_' exp{k}];
-                m = m + 1 ;
-            end
-        end
-    end
-end
+    for j = 1:length(conds(1,:))
+        for l = 1:length(sign_measures)
+            for m = 1:length(conds{2,j})
+                signVars{n} = [em{i} '_' conds{2,j}{m} '_' sign_measures{l} '_' conds{1,j}];
+                 n = n + 1 ;
+            end;
+        end;
+    end;
+end;
+
 
 T_sign = mfile_table(:,[standard_vars, signVars]);
 writetable(T_sign, fullfile(tableDir, 'subjinfo_amps.csv'));

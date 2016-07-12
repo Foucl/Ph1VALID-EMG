@@ -6,7 +6,13 @@ classdef prepro
     end
     
     methods (Static)
-        function [ conds ] = defineConditions(subjinfo)
+        function [ conds ] = defineConditions(subj)
+            if ischar(subj)
+                eval([subj '_subjinfo']);
+            else
+                subjinfo = subj;
+            end;
+            
             conds.Rp = {'AN_val' 'AN_inval' 'HA_val' 'HA_inval';
                 51 61 52 62;
                 1 1 2 2};

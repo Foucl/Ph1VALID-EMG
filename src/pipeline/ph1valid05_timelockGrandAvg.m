@@ -15,6 +15,7 @@ end;
 
 SessionInfo = ph1valid00_setup;
 
+%TODO: integrate Ts_fine in loop/aggregation
 [ ga ]  = aggregateTimelocks (experiment, SessionInfo, forceInd, forceGa);
 
 
@@ -29,6 +30,9 @@ inner_padding = [0.09, 0.08];
 scrsz = get(groot,'ScreenSize');
 figure('Name','Reaction Time Grand Average','NumberTitle','off','Position',[1 scrsz(4)/2 scrsz(3)/2 scrsz(4)/2]);
 
+
+%TODO: map exp_long correctly/automatically to experiment
+
 if strcmpi(experiment, 'both')
     exp = {'Rp', 'Ts'};
     exp_long = {'Reponse Priming', 'Response Switching'};
@@ -42,6 +46,8 @@ else
 end;
 musc_long = {'Corrugator', 'Zygomaticus major'};
 
+%TODO: integrate Ts_fine in plotting
+%IDEA: option to compare Rp to either Ts or Ts_fine
 k = 1;
 for i = 1:length(exp)
     musc = {'cor', 'zyg'};
@@ -62,79 +68,3 @@ tightfig;
 
 fig = gcf;
 
-
-
-function [ ga ] = aggregateTimelocks (experiment, SessionInfo, force, forceGA)
-
-em = {'AN', 'HA'};
-valid = {'val', 'inval'};
-musc = {'cor', 'zyg'};
-l = 1;
-for i = 1:length(em)
-    for j = 1: length(valid)
-        for k = 1: length(musc)
-            baseCons{l} = [em{i} '_' valid{j} '_' musc{k}];
-            l = l +1;
-        end;
-    end;
-end;
-c = cell(8,1);
-TlCondTemplate = struct('Rp', cell2struct(c, baseCons), 'Ts', cell2struct(c, baseCons));
-
-if strcmpi(experiment, 'both')
-    exp = {'Rp', 'Ts'};
-else
-    exp{1} = experiment;
-end;
-
-for k = 1:length(exp)
-    ga_file = fullfile(SessionInfo.outDir, ['tlga_' exp{k} '.mat']);
-    if exist(ga_file,'file') && ~forceGA
-        gaCur = load(ga_file);
-        ga.(exp{k}) = gaCur.ga.(exp{k});
-        %TlCond = nan;
-        continue;
-    end;
-    
-    %% read individual timelocks
-clear TlCond;    
-TlCond.(exp{k}) = TlCondTemplate.(exp{k});
-    fehler = cell(46,1);
-    j = 1;
-    tic;
-    for i = 1:46
-        if i < 10
-            b = ['0' num2str(i)];
-        else
-            b = num2str(i);
-        end;
-        arg = ['VP' b];
-        try
-            TlCond(i) = ph1valid04_timelockSubject (exp{k}, arg, force);
-         catch ME
-             disp(ME);
-             fehler{j} = sprintf('%s: %s', arg, ME.message);
-             j = j + 1;
-         end;
-    end
-    toc
-    fehler = fehler(~cellfun('isempty',fehler));
-    disp(fehler);
-    TlCondCur = [TlCond.(exp{k})];
-    empty_elems = arrayfun(@(s) all(structfun(@isempty,s)), TlCondCur);
-    TlCond(empty_elems) = [];
-    TlCondCur(empty_elems) = [];
-    
-    %% calculate grand averaged timelock for each condition
-    conds = fieldnames(TlCondCur);
-    for i = 1:length(conds)
-        con = conds{i};
-        %TlCondCur = TlCond.(exp{k});
-        tl = {TlCondCur(:).(con)};
-        cfg = [];
-        cfg.parameter = 'avg';
-        ga.(exp{k}).(con) = ft_timelockgrandaverage(cfg, tl{:});
-    end;
-    
-    save(ga_file, 'ga');
-end;

@@ -6,7 +6,7 @@ subjmfileDir = SessionInfo.subjmfileDir;
 %% read tables
 
 
-% DONE:20 something
+% DONE:40 something
 
 T_behav = readtable(fullfile(tableDir, 'subjinfo_behav.csv'));
 T_neo = readtable(fullfile(tableDir, 'uniparkMapping.csv'));

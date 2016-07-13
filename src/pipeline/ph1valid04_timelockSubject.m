@@ -42,9 +42,9 @@ for j = 1:length(exp)
         conds{2,1} conds{2,1} conds{2,2} conds{2,2} conds{2,3} conds{2,3} ...
         conds{2,4} conds{2,4}; 1 2 1 2 2 1 2 1};
     else
-        % DONE: smart generation of conditions for Ts_fine (via loop), in
+        % DONE:20 smart generation of conditions for Ts_fine (via loop), in
         % order to replace the option above
-        % TODO: check if var-generation works for all experiments
+        % TODO:0 check if var-generation works for all experiments
         conds_orig = conds;
         conds = cell(3,length(conds_orig) * 2);
         for i = 1:length(conds_orig)

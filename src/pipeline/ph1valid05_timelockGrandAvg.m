@@ -15,7 +15,7 @@ end;
 
 SessionInfo = ph1valid00_setup;
 
-%TODO: integrate Ts_fine in loop/aggregation
+%TODO:20 integrate Ts_fine in loop/aggregation
 [ ga ]  = aggregateTimelocks (experiment, SessionInfo, forceInd, forceGa);
 
 
@@ -31,7 +31,7 @@ scrsz = get(groot,'ScreenSize');
 figure('Name','Reaction Time Grand Average','NumberTitle','off','Position',[1 scrsz(4)/2 scrsz(3)/2 scrsz(4)/2]);
 
 
-%TODO: map exp_long correctly/automatically to experiment
+%TODO:50 map exp_long correctly/automatically to experiment
 
 if strcmpi(experiment, 'both')
     exp = {'Rp', 'Ts'};
@@ -46,7 +46,7 @@ else
 end;
 musc_long = {'Corrugator', 'Zygomaticus major'};
 
-%TODO: integrate Ts_fine in plotting
+%TODO:30 integrate Ts_fine in plotting
 %IDEA: option to compare Rp to either Ts or Ts_fine
 k = 1;
 for i = 1:length(exp)

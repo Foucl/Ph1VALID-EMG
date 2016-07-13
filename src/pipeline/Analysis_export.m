@@ -64,3 +64,17 @@ end;
 %% calculate ANOVA table itself
 
 %myanova = ranova(rmT.rt_Rp, 'WithinModel','em*val')
+
+%% facet-emg-hits-corr
+T_facet = readtable('facet_hits.csv');
+T_emg = mfile_table(:,['subjid' export.tblGrep(mfile_table, 'Trials_Rp_CLEAN')]);
+T = join(T_facet, T_emg);
+T_hits = T(:,['subjid' export.tblGrep(T, 'nHitTrials')]);
+corrplot(T_hits(:,2:end), 'type', 'Spearman')
+
+T_om = T(:,['subjid' export.tblGrep(T, 'nOmissionTrials')]);
+corrplot(T_om(:,2:end), 'type', 'Spearman')
+
+
+T_fp = T(:,['subjid' export.tblGrep(T, 'nFPTrials')]);
+corrplot(T_fp(:,2:end), 'type', 'Spearman')

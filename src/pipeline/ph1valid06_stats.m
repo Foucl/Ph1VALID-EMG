@@ -19,6 +19,7 @@ end;
 
 io.normalizeStructs()
 
+clear sub;
 for i = 1:length(existingSubjmfiles)
     clear subjinfo;
     eval(existingSubjmfiles(i,:));
@@ -143,7 +144,7 @@ writetable(T_qual, fullfile(tableDir, 'subjinfo_quality.csv'));
 
 %% generate table with demographic information
 
-% TODO:10 get variance of each channel (using the ga object?)
+% TODO:60 get variance of each channel (using the ga object?)
 % be smarter about variable collection:
 
 % generate names of variables of interest programmatically
@@ -159,8 +160,11 @@ writetable(T_demo, fullfile(tableDir, 'subjinfo_demo.csv'));
 
 %em = {'AN', 'HA'};
 %valid = {'val', 'inval'};
+conds{1,4} = 'Rp_CLEAN';
+conds(2,4) = conds(2,1);
 
-measures = {'meanRT', 'sdRT', 'nErrorTrials', 'nFpTrials', 'nOmissionTrials', ...
+
+measures = {'meanRT', 'sdRT', 'nFpTrials', 'nOmissionTrials', ...
     'nHitTrials', 'propHit', 'propFP', 'propOm'};
 nTrialVars = (length(exp) * numel(valid) + numel([conds{2,3}])) * length(em) * length(measures);
 n = 1;
@@ -192,19 +196,21 @@ for i = 1:length(em)
         for l = 1:length(sign_measures)
             for m = 1:length(conds{2,j})
                 signVars{n} = [em{i} '_' conds{2,j}{m} '_' sign_measures{l} '_' conds{1,j}];
-                 n = n + 1 ;
+                 n = n + 1;
             end;
         end;
     end;
 end;
+ampVars = export.tblGrep(mfile_table, 'amp');
+thVars = export.tblGrep(mfile_table, 'thr');
 
-
-T_sign = mfile_table(:,[standard_vars, signVars]);
+T_sign = mfile_table(:,[standard_vars, signVars, thVars]);
 writetable(T_sign, fullfile(tableDir, 'subjinfo_amps.csv'));
-
+T = join(T_sign, T_behav);
+writetable(T, fullfile(tableDir, 'subjinfo_behav.csv'));
 %% state & other self report measures from experimental run
-% DONE:40 map state (mood, ruhig, erregt, wach, mued) to correct experiment
-% DONE:10 get correct 'is_excluded_{experiment}' values during prepro
+% DONE:60 map state (mood, ruhig, erregt, wach, mued) to correct experiment
+% DONE:30 get correct 'is_excluded_{experiment}' values during prepro
 
 rp_gen_vars = {'nRpTrials', 'nErrors', 'nFP', 'nOmissions', 'nHits'};
 ts_gen_vars = ['nTsTrials', cellfun(@(x) [x '_ts'], rp_gen_vars(2:end), 'Uniform', 0)];

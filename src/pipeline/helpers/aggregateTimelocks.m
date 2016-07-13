@@ -87,7 +87,7 @@ TlCond.(exp{k}) = TlCondTemplate.(exp{k});
         cfg.parameter = 'avg';
         ga.(exp{k}).(con) = ft_timelockgrandaverage(cfg, tl{:});
     end;
-    %TODO: is skipped because of warning concerning matlab 7.3
+    %TODO:40 is skipped because of warning concerning matlab 7.3
     save(ga_file, 'ga');
 end;
 

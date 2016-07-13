@@ -68,7 +68,7 @@ end;
 %% collect some basic information on the dataset
 eval([subjid '_subjinfo']);
 
-% DONE:50 differentiate further in Switching and Repetition Trials
+% DONE:70 differentiate further in Switching and Repetition Trials
 conds = prepro.defineConditions(subjinfo);
 
 conds = conds.(experiment);

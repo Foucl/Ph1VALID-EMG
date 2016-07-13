@@ -3,7 +3,7 @@
 ## Marginal Distributions
 (with smoothed probability density kernel)
 
-![](../../reports/figures/rtDistributions.png)
+![](../reports/figures/rtDistributions.png)
 
 ## Marginal Means
 
@@ -30,7 +30,7 @@ error Bars = standard error of the mean
 |cond        |   1|  41|  0.9495| 0.233|  167.10| 0.0000|*     | 0.1761|
 |em:cond     |   1|  41|  0.0256| 0.114|    9.21| 0.0042|*     | 0.0057|
 
-![](../../reports/figures/Rp_interaction_rt.png)
+![](../reports/figures/Rp_interaction_rt.png)
 
 ### Response Switching
 |Effect      | DFn| DFd|        SSn|       SSd|           F|         p|p<.05 |       $\eta^2$|
@@ -40,4 +40,4 @@ error Bars = standard error of the mean
 |cond        |   1|  41|  0.0027717| 0.0993028|    1.144368| 0.2910|      | 0.0015|
 |em:cond     |   1|  41|  0.0169572| 0.0943336|    7.370055| 0.0097|*     | 0.0090|
 
-![](../../reports/figures/Ts_interaction_rt.png)
+![](../reports/figures/Ts_interaction_rt.png)

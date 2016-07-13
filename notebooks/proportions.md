@@ -12,7 +12,7 @@ error Bars = standard error of the mean
 |cond        |   1|  41|   0.000| 0.038|     0.000| 0.983|      | 0.000|
 |em:cond     |   1|  41|   0.000| 0.036|     0.230| 0.634|      | 0.001|
 
-![](../../reports/figures/Rp_interaction_propHit.png)
+![](../reports/figures/Rp_interaction_propHit.png)
 
 ### Response Switching
 |Effect      | DFn| DFd|     SSn|   SSd|         F|     p|p<.05 |   $\eta^2$|
@@ -22,7 +22,7 @@ error Bars = standard error of the mean
 |cond        |   1|  41|   0.000| 0.009|     0.086| 0.771|      | 0.000|
 |em:cond     |   1|  41|   0.000| 0.012|     0.109| 0.743|      | 0.000|
 
-![](../../reports/figures/Ts_interaction_propHit.png)
+![](../reports/figures/Ts_interaction_propHit.png)
 
 ## Proportion of Omissions
 ### Response Priming
@@ -33,7 +33,7 @@ error Bars = standard error of the mean
 |cond        |   1|  41| 0.000| 0.007| 1.331| 0.255|      | 0.007|
 |em:cond     |   1|  41| 0.000| 0.007| 0.275| 0.603|      | 0.001|
 
-![](../../reports/figures/Rp_interaction_propOm.png)
+![](../reports/figures/Rp_interaction_propOm.png)
 
 ### Response Switching
 |Effect      | DFn| DFd| SSn|   SSd|      F|     p|p<.05 |   $\eta^2$|
@@ -43,7 +43,7 @@ error Bars = standard error of the mean
 |cond        |   1|  41|   0| 0.000|  0.184| 0.671|      | 0.000|
 |em:cond     |   1|  41|   0| 0.001|  0.112| 0.739|      | 0.001|
 
-![](../../reports/figures/Ts_interaction_propOm.png)
+![](../reports/figures/Ts_interaction_propOm.png)
 
 ## Proportion of False Positives
 ### Response Priming
@@ -54,7 +54,7 @@ error Bars = standard error of the mean
 |cond        |   1|  41| 0.000| 0.022|  0.387| 0.537|      | 0.001|
 |em:cond     |   1|  41| 0.000| 0.023|  0.104| 0.748|      | 0.000|
 
-![](../../reports/figures/Rp_interaction_propFP.png)
+![](../reports/figures/Rp_interaction_propFP.png)
 
 ### Response Switching
 |Effect      | DFn| DFd|   SSn|   SSd|      F|     p|p<.05 |   $\eta^2$|
@@ -64,4 +64,4 @@ error Bars = standard error of the mean
 |cond        |   1|  41| 0.000| 0.009|  0.148| 0.702|      | 0.000|
 |em:cond     |   1|  41| 0.000| 0.009|  0.232| 0.632|      | 0.000|
 
-![](../../reports/figures/Ts_interaction_propFP.png)
+![](../reports/figures/Ts_interaction_propFP.png)

@@ -8,11 +8,6 @@ function [ SessionInfo ] = ph1valid00_setup( )
 
 userDir = char(java.lang.System.getProperty('user.home'));
 
-
-if nargin < 1
-    force = false;
-end;
-
 %% deactivate annoying warnings
 
 warning('off', 'MATLAB:dispatcher:pathWarning');

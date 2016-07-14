@@ -31,10 +31,12 @@ label = label(indBeg:end-6);
 ncol  = numel(label);
 %str   = ['%s%{yyyyMMdd}D%s%f%s%s%s%s', repmat('%f', [1 ncol-14]), '%s%s%f%s%s%s%f%f'];
 %str   = ['%s%s%s%f%s%s%s%s', repmat('%f', [1 ncol-14]), '%s%s%f%s%s%s%f%f'];
-str   = [ repmat('%*s', [1 (indBeg -1)]), repmat('%f', [1 ncol]), repmat('%s*', [1 (indLast-ncol-indBeg - 4)])];
+ignoredCols_end = indLast-ncol-indBeg + 1;
+str   = [ repmat('%*s', [1 (indBeg -1)]), repmat('%f', [1 ncol]) ' %*[^\n]'];
 %str   = [ '%*s%*s%*s%*s%*s%*s%*s%*s', repmat('%f', [1 ncol]), '%*s%*s%*s%*s%*s%*s%*s%*s'];
 %
-dataArray = textscan(fid, str, endsample-begsample, 'Delimiter', delimiter, 'ReturnOnError', false, 'HeaderLines', begsample);
+dataArray = textscan(fid, str, endsample-begsample + 1, 'Delimiter', delimiter,...
+        'ReturnOnError', false, 'HeaderLines', begsample, 'EmptyValue', -9999);
 
 fclose(fid);
 
@@ -46,8 +48,9 @@ dat = cell2mat(dataArray);
 %dat = dat(start:end,:);
 
 % kill the negative evidence scores:
-dat( dat<0 )=0; 
+%dat( dat<0 )=0; 
 
+nans = numel(dat(isnan(dat)));
 
 dat = dat(:, chanindx)';
 

@@ -1,18 +1,19 @@
 %% trying to read a FACET dataset after expanding fieldtrip io functions with readFACET_data, _events & _hdr
 
+%TODO: concentrate von VP38
 
 %% setup paths
 SessionInfo = ph1valid00_setup;
 addpath(fullfile(SessionInfo.projectBaseDir, 'facet_xcorr'));
-fc_dir = fullfile(SessionInfo.dataDir, 'FACET');
-filename = fullfile(fc_dir, 'Dump046_VP46.txt');
-emg_file = fullfile(SessionInfo.emgRawDir, 'VP46', 'VP46_20160610-Deci.bdf');
+fc_dir = fullfile(SessionInfo.dataDir, 'raw', 'FACET');
+filename = fullfile(fc_dir, 'VP38.txt');
+emg_file = fullfile(SessionInfo.emgRawDir, 'VP38', 'VP38_20160603-Deci.bdf');
 
 %% setup parameters
 prestim = 2.3;
 poststim = 4.5;
 
-%% get EMG data (so FACET data can be upsampled)
+%% get EMG data first (so FACET data can be upsampled)
 cfg = [];
 cfg.trialdef.prestim = prestim;
 cfg.trialdef.poststim = poststim;
@@ -57,7 +58,25 @@ cfg.channel = {'Joy Evidence', 'Anger Evidence'};
 
 data = ft_preprocessing(cfg);
 
+% 1.5: reject 'artifacts' (no face detected)
+% TODO: facet-artefact detection
+% TODO: document facet artefacts for VP38
+cfg = [];
+cfg.trl = trl;
+cfg.continuous = 'no';
+cfg.artfctdef.threshold.bpfilter = 'no';
+cfg.artfctdef.threshold.min = -9000;
+cfg.artfctdef.threshold.range = 900;
+[cfg, artifact] = ft_artifact_threshold(cfg, data);
+
+data = ft_rejectartifact(cfg, data);
+
+% visual inspection
+% data.cfg.event = data.cfg.previous.previous.event
+% ft_databrowser([], data);
+
 % 2. upsample to match EMG-sampling rate
+cfg = [];
 cfg.time = data_emg.time;
 data = ft_resampledata(cfg, data); % or rename to data_us?
 
@@ -69,6 +88,11 @@ data = ft_preprocessing(cfg, data);
 
 
 %% combine both datasets
+
+% remove corresponding trials from data_emg
+cfg = [];
+cfg.threshold.artifact = data.cfg.previous.previous.artfctdef.threshold.artifact;
+
 
 % try to concatenate both datasets
 dat = ft_appenddata([], data, data_emg);
@@ -119,11 +143,11 @@ for i = 1:length(dat.trial)
     r = corrcoef(T1, T2);
     r_raw(i) = r(1,2);
     [C1,lag1] = xcorr(T1,T2);
-    
+
     [~,I] = max(abs(C1));
     SampleDiff(i) = lag1(I);
     timeDiff(i) = SampleDiff(i)/Fs;
-    
+
     [T1_cor, T2_cor] = alignsignals(T1, T2,[], 'truncate');
     r = corrcoef(T1_cor, T2_cor, 'rows', 'complete');
     r_alg(i) = r(1,2);

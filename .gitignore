@@ -74,7 +74,10 @@ target/
 *.asv
 
 # exclude data from source control by default
-/data/
+/data/interim/
+/data/preprocessed/
+/data/processed/EMG_GrandAverages/
+/data/raw/
 
 # exclude external toolbox (fieldtrip)
 /src/.external/

@@ -1,4 +1,4 @@
-function [ SessionInfo ] = ph1valid00_setup( force )
+function [ SessionInfo ] = ph1valid00_setup( )
 %PH1VALID_SETUP Sets up directory information and stores them in 'SessionInfo'
 % as well as in the global Variable 'Sess'
 % also loads fieldtrip
@@ -24,7 +24,7 @@ S.dataDir = fullfile(S.projectBaseDir, 'data');
 %S.emgRawDir = fullfile(S.dataDir, 'raw', 'EMG_raw');
 S.emgDsDir = fullfile(S.dataDir, 'interim', 'EMG_downsampled');
 S.emgRawDir = S.emgDsDir;
-S.emgPreproDir = fullfile(S.dataDir, 'preprocesssed', 'EMG_preprocessed');
+S.emgPreproDir = fullfile(S.dataDir, 'preprocessed', 'EMG_preprocessed');
 S.subjmfileDir = fullfile(S.dataDir, 'processed', 'subjmfiles');
 S.tableDir = fullfile(S.dataDir, 'processed', 'tables');
 S.figDir = fullfile(S.projectBaseDir, 'reports', 'figures');

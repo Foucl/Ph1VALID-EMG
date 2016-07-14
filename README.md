@@ -1,14 +1,13 @@
-Ph1VALID-EMG
-==============================
+# Ph1VALID-EMG
 
 Analysis pipeline and results/reports for experiment ph1valid
 
-"languages": {
-  ".m":           {"name": "matlab", "symbol": "%", "block": {"start":"%{", "end":"%}", "ignore":"%"}},
-},
 
-Project Organization
-------------
+## Project Organization
+
+EMG and Facet raw and preprocessed data is not stored in this repository, but in an [Amazon S3 bucket](https://console.aws.amazon.com/s3/home?bucket=ph1valid&prefix=data&region=eu-central-1) (login as described in the [main README](../README.md)). Choose 'abdd' as account/Konto, DDmitarbeiter as user name and the usual password.
+
+You can also get the raw data from the ABDD-Server (Mitarbeiter/Christopher/O:\Mitarbeiter/Christopher/Data_ValidExp/EMG\_raw).
 
 
     ├── LICENSE

@@ -3,12 +3,22 @@
 Analysis pipeline and results/reports for experiment ph1valid
 
 
-## Project Organization
+
+
+
+## Additional necessary resources
+
+### raw data
 
 EMG and Facet raw and preprocessed data is not stored in this repository, but in an [Amazon S3 bucket](https://console.aws.amazon.com/s3/home?bucket=ph1valid&prefix=data&region=eu-central-1) (login as described in the [main README](../README.md)). Choose 'abdd' as account/Konto, DDmitarbeiter as user name and the usual password.
 
 You can also get the raw data from the ABDD-Server (Mitarbeiter/Christopher/O:\Mitarbeiter/Christopher/Data_ValidExp/EMG\_raw).
 
+### Fieldtrip toolbox
+
+The EMG pipeline works fine with any current [fieldtrip](http://www.fieldtriptoolbox.org/) version. Reading the FACET data (in order to read that data as an additional 'channel') requires [this fork](https://github.com/foucl/fieldtrip) of fieldtrip. Using this fork also makes sure that the results here can be reproduced exactly.
+
+## Project Organization
 
     ├── LICENSE
     ├── Makefile           <- Makefile with commands like `make data` or `make train`

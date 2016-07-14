@@ -6,7 +6,7 @@ Analysis pipeline and results/reports for experiment ph1valid
 
 
 
-## Additional necessary resources
+## Additional resources
 
 ### raw data
 

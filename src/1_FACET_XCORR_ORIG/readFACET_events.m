@@ -30,6 +30,11 @@ indTyp = find(not(cellfun('isempty', tmp)));
 tmp = strfind(label,'MarkerText');
 indEv = find(not(cellfun('isempty', tmp)));
 
+% tmp = strfind(label,'NoOfFaces');
+% indFaces = not(cellfun('isempty', tmp));
+% 
+% emptInd = (dataArray{indFaces} < 1);
+
 trInd = ~isnan(dataArray{indEv});
 
 [time, frame, typ, ev] = dataArray{[indTime, indFrame,indTyp, indEv]};

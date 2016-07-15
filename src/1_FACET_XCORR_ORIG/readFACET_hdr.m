@@ -17,15 +17,8 @@ label = label{1};
 %label = label(9:59);
 label = label(9:end-6);
 ncol  = numel(label);
-% str   = ['%s%{yyyyMMdd}D%s%f%s%s%s%s', repmat('%f', [1 ncol-14]), '%s%s%f%s%s%s%f%f'];
-% dataArray = textscan(fid, str, 'Delimiter', delimiter, 'ReturnOnError', false);
-% label = label([20:59]);
-% ncol  = numel(label);
-% [time, frame] = dataArray{[9, 13]};
-% start = find(frame == 1);
-% start = start(2);
-% time = time(start:end);
-% frame = frame(start:end);
+
+
 str   = ['%*s%*s%*s%*s%*s%*s%*s%*s', repmat('%f', [1 ncol]), '%*s%*s%*s%*s%*s%*s%*s%*s'];
 dataArray = textscan(fid, str, 'Delimiter', delimiter, 'ReturnOnError', false);
 
@@ -35,6 +28,7 @@ indTime = find(not(cellfun('isempty', tmp)));
 
 tmp = strfind(label,'FrameNo');
 indFrame = find(not(cellfun('isempty', tmp)));
+
 
 [time, frame] = dataArray{[indTime, indFrame]};
 start = find(frame == 1);
@@ -50,7 +44,7 @@ nFrame = frame(nSmpl);
 fps = nFrame/nS;
 Fs = fps;
 
-label = label(12:end);
+%label = label(12:end);
 
 
 % create the output

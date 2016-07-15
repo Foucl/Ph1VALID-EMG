@@ -15,9 +15,6 @@ end;
 fid = fopen(filename, 'r');
 
 
-%a = dlmread(filename,'\t', 7, 1, );
-%columns 9-59
-
 delimiter = '\t';
 startRow = 7;
  %get rid of first lines
@@ -25,7 +22,7 @@ startRow = 7;
  label = textscan(firstlines{1}{6}, '%[^\t]');
 label = label{1};
 indLast = numel(label);
-tmp = strfind(label,'Joy Evidence');
+tmp = strfind(label,'NoOfFaces');
 indBeg = find(not(cellfun('isempty', tmp)));
 label = label(indBeg:end-6);
 ncol  = numel(label);
@@ -33,17 +30,13 @@ ncol  = numel(label);
 %str   = ['%s%s%s%f%s%s%s%s', repmat('%f', [1 ncol-14]), '%s%s%f%s%s%s%f%f'];
 ignoredCols_end = indLast-ncol-indBeg + 1;
 str   = [ repmat('%*s', [1 (indBeg -1)]), repmat('%f', [1 ncol]) ' %*[^\n]'];
-%str   = [ '%*s%*s%*s%*s%*s%*s%*s%*s', repmat('%f', [1 ncol]), '%*s%*s%*s%*s%*s%*s%*s%*s'];
-%
+
 dataArray = textscan(fid, str, endsample-begsample + 1, 'Delimiter', delimiter,...
         'ReturnOnError', false, 'HeaderLines', begsample, 'EmptyValue', -9999);
 
 fclose(fid);
 
-%[time, frame] = dataArray{[1, 5]};
-%start = find(frame == 1);
-%start = start(2);
-%dataArray = dataArray([12:51]);
+
 dat = cell2mat(dataArray);
 %dat = dat(start:end,:);
 

@@ -52,14 +52,17 @@ cfg.eventformat = 'facet_txt';
 cfg.dataset = filename;
 cfg = ft_definetrial(cfg);
 trl = cfg.trl;
-cfg.demean          = 'yes';
+
+%TODO: make good decision about demeaning
+cfg.demean          = 'no';
 cfg.baselinewindow  = [-0.1 0];
 cfg.channel = {'Joy Evidence', 'Anger Evidence'};
-
 data = ft_preprocessing(cfg);
 
+%% artifact rejection
+
 % 1.5: reject 'artifacts' (no face detected)
-% TODO: facet-artefact detection
+% TODO: facet-artifact detection
 % TODO: document facet artefacts for VP38
 cfg = [];
 cfg.trl = trl;
@@ -69,7 +72,19 @@ cfg.artfctdef.threshold.min = -9000;
 cfg.artfctdef.threshold.range = 900;
 [cfg, artifact] = ft_artifact_threshold(cfg, data);
 
+% keep track of rejected trials:
+art_beg = cfg.artfctdef.threshold.artifact(:,1);
+trl_beg = cfg.artfctdef.threshold.trl(:,1);
+[~,~,exclTrials] = intersect(art_beg,trl_beg);
+[~,cleanTrials] = setdiff(trl_beg,art_beg);
+fprintf('%d trials excluded because no face was detected:\n', numel(exclTrials));
+fprintf('%d ', exclTrials);
 data = ft_rejectartifact(cfg, data);
+
+% remove those trials from EMG data too
+cfg = [];
+cfg.trials = cleanTrials;
+data_emg = ft_selectdata(cfg, data_emg);
 
 % visual inspection
 % data.cfg.event = data.cfg.previous.previous.event
@@ -89,11 +104,6 @@ data = ft_preprocessing(cfg, data);
 
 %% combine both datasets
 
-% remove corresponding trials from data_emg
-cfg = [];
-cfg.threshold.artifact = data.cfg.previous.previous.artfctdef.threshold.artifact;
-
-
 % try to concatenate both datasets
 dat = ft_appenddata([], data, data_emg);
 
@@ -102,13 +112,14 @@ dat = ft_appenddata([], data, data_emg);
 % data visible)
 % dat.trial = cellfun(@ft_preproc_standardize, dat.trial, 'UniformOutput', false);
 datArr = ft_preproc_standardize([dat.trial{:}]);
-datArr = mat2cell(datArr,4,repmat(870,1,200));
+datArr = mat2cell(datArr,4,repmat(870,1,numel(cleanTrials)));
 dat.trial = datArr;
 
 % inspect
 cfg = [];
-cfg.channel = {'Cor', 'Anger Evidence'};
-ft_databrowser(cfg, dat);
+cfg.trials = data.trialinfo == 51;
+cfg.channel = {'Anger Evidence'};
+ft_databrowser(cfg, ft_selectdata(cfg, dat));
 
 %% concatenate all trials
 

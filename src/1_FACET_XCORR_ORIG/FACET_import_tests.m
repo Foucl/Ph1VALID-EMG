@@ -59,6 +59,15 @@ cfg.baselinewindow  = [-0.1 0];
 cfg.channel = {'Joy Evidence', 'Anger Evidence'};
 data = ft_preprocessing(cfg);
 
+% append beginning of trial (in frames/sampling points) to trialinfo:
+data.trialinfo(:,2) = data.sampleinfo(:,1);
+
+% stimulus should be presented on 70th frame of each trial:
+data.trialinfo(:,3) = data.sampleinfo(:,1) + 70;
+
+% also add end of trial
+data.trialinfo(:,4) = data.sampleinfo(:,2);
+
 %% artifact rejection
 
 % 1.5: reject 'artifacts' (no face detected)
@@ -79,6 +88,9 @@ trl_beg = cfg.artfctdef.threshold.trl(:,1);
 [~,cleanTrials] = setdiff(trl_beg,art_beg);
 fprintf('%d trials excluded because no face was detected:\n', numel(exclTrials));
 fprintf('%d ', exclTrials);
+data.trialinfo(exclTrials,5) = 1;
+
+%reject
 data = ft_rejectartifact(cfg, data);
 
 % remove those trials from EMG data too

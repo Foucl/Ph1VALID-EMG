@@ -18,6 +18,7 @@ S.toolboxDir = fullfile(S.projectBaseDir, 'src', '.external');
 S.dataDir = fullfile(S.projectBaseDir, 'data');
 %S.emgRawDir = fullfile(S.dataDir, 'raw', 'EMG_raw');
 S.emgDsDir = fullfile(S.dataDir, 'interim', 'EMG_downsampled');
+S.facVideoDir = fullfile(S.dataDir, 'interim', 'FACET_videos_compressed');
 S.emgRawDir = S.emgDsDir;
 S.emgPreproDir = fullfile(S.dataDir, 'preprocessed', 'EMG_preprocessed');
 S.subjmfileDir = fullfile(S.dataDir, 'processed', 'subjmfiles');

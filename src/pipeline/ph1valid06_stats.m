@@ -126,7 +126,7 @@ for i = 1:length(strO)
 end;
 
 T_contr = mfile_table(:, [standard_vars conVars stratVars]);
-writetable(T_contr, fullfile(tableDir, 'subjinfo_controls.csv'));
+%writetable(T_contr, fullfile(tableDir, 'subjinfo_controls.csv'));
 
 %% generate data quality table
 
@@ -140,7 +140,7 @@ finalVars = {'subjid', 'nRpTrials', 'nTsTrials', 'propErrors_Rp', 'propErrors_Ts
 
 T_qual = T_qual(:, finalVars);
 
-writetable(T_qual, fullfile(tableDir, 'subjinfo_quality.csv'));
+%writetable(T_qual, fullfile(tableDir, 'subjinfo_quality.csv'));
 
 %% generate table with demographic information
 

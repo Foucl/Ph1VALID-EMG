@@ -89,8 +89,9 @@ conds = conds.(experiment);
 [ Info, data{1} ] = prepro.getErrors(data{1}, Info, conds, experiment);
 
 if strcmpi(experiment, 'Rp')
-    data{2}.trialinfo = data{1}.trialinfo;
-    data = data{2};
+    %data{2}.trialinfo = data{1}.trialinfo;
+    %data = data{2};
+    data = data{1};
 else
     data = data{1};
 end;
@@ -105,9 +106,9 @@ Info.(['cleanTrials_' experiment]) = setdiff(1:size(data.trialinfo, 1),Info.(['a
 Info.(['nCleanTrials_' experiment]) = length(Info.(['cleanTrials_' experiment]));
 cfg = [];
 cfg.trials = Info.(['cleanTrials_' experiment]);
-data = ft_selectdata(cfg, data);
+%data = ft_selectdata(cfg, data);
 
-data.cfg.event = data.cfg.previous.event;
+%data.cfg.event = data.cfg.previous.event;
 
 %% recalculate thresholds
 [ Info, data ] = prepro.getThresholds(data, Info, conds, 'clean', experiment);
@@ -126,7 +127,7 @@ end;
 io.writeToSubjmfile(Info, subjid);
 
 if warn
-    warning('No subjid provided; used VP16 for testing purposes.');
+    warning('No subjid provided; used VP46 for testing purposes.');
 end;
 
 

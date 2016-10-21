@@ -1,6 +1,6 @@
 %% trying to read a FACET dataset after expanding fieldtrip io functions with readFACET_data, _events & _hdr
 
-%TODO: concentrate von VP38
+%TODO: concentrate on VP38
 
 %% setup paths
 SessionInfo = ph1valid00_setup;

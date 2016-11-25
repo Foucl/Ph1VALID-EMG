@@ -1,0 +1,47 @@
+subjid,date,age,sex,studPsych
+VP01,NaN,23,female,no
+VP02,25-Apr-2016 10:06:01,26,male,yes
+VP03,NaN,NaN,<undefined>,<undefined>
+VP04,26-Apr-2016 10:20:39,21,male,no
+VP05,27-Apr-2016 10:06:50,22,male,no
+VP06,02-May-2016 10:05:54,20,male,no
+VP07,04-May-2016 16:00:08,29,male,no
+VP08,06-May-2016 10:27:38,20,male,yes
+VP09,06-May-2016 11:59:33,21,male,no
+VP10,10-May-2016 10:09:27,27,male,no
+VP11,13-May-2016 10:12:24,22,female,yes
+VP12,13-May-2016 13:31:46,25,male,no
+VP13,17-May-2016 10:04:01,25,male,no
+VP14,17-May-2016 11:52:15,21,male,no
+VP15,17-May-2016 13:51:47,20,female,no
+VP16,18-May-2016 09:52:57,26,male,no
+VP17,18-May-2016 18:01:41,27,female,no
+VP18,19-May-2016 09:46:41,20,male,yes
+VP19,19-May-2016 11:47:38,35,male,no
+VP20,19-May-2016 13:42:36,19,male,no
+VP21,19-May-2016 15:22:44,38,male,no
+VP22,20-May-2016 12:01:34,40,male,no
+VP23,20-May-2016 13:31:13,19,male,yes
+VP24,24-May-2016 14:29:51,26,female,no
+VP25,25-May-2016 10:13:55,22,male,no
+VP26,25-May-2016 16:18:44,19,male,no
+VP27,25-May-2016 18:44:23,21,male,no
+VP28,26-May-2016 09:55:37,24,male,no
+VP29,26-May-2016 11:34:07,23,male,no
+VP30,26-May-2016 13:25:29,21,male,no
+VP31,27-May-2016 13:35:32,21,male,no
+VP32,31-May-2016 11:43:53,24,male,no
+VP33,31-May-2016 13:44:02,18,male,no
+VP34,01-Jun-2016 09:53:38,30,male,no
+VP35,01-Jun-2016 17:13:08,24,male,yes
+VP36,02-Jun-2016 13:48:31,29,male,no
+VP37,03-Jun-2016 09:51:07,27,female,no
+VP38,03-Jun-2016 11:24:38,22,female,yes
+VP39,03-Jun-2016 13:39:33,20,female,no
+VP40,06-Jun-2016 10:41:29,27,male,no
+VP41,07-Jun-2016 13:39:56,20,male,no
+VP42,08-Jun-2016 10:04:51,21,male,no
+VP43,08-Jun-2016 11:34:03,28,male,no
+VP44,08-Jun-2016 18:20:28,21,female,no
+VP45,09-Jun-2016 11:34:07,25,male,yes
+VP46,10-Jun-2016 12:51:36,38,female,no

@@ -57,9 +57,9 @@ if length(trl) < 190
         nTrl = length(trl);
         error(['custom:less_' int2str(nTrl)], 'not enough trials, found only %d.', nTrl);
   %  end;
-elseif length(trl) > 210
+elseif length(trl) > 200
     nTrl = length(trl);
-    trl = trl(length(trl) - 200 + 1:end,:);
+    trl = trl(1:200,:);
     warning(['custom:more_' int2str(nTrl)], 'too many trials. found %d.\nTrimming away early trials.', nTrl);
 else
     nTrl = length(trl);

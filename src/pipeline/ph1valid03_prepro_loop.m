@@ -13,7 +13,8 @@ elseif nargin < 3
     which_th = 'Threshold';
 end;
 
-
+%todo = [11, 14];
+skip = [1, 3];
 j = 1;
 tic;
 fehler = cell(46,1);
@@ -23,6 +24,9 @@ for i = 1:46
     else
         b = num2str(i);
     end;
+    %if ~ismember(i, todo)
+    %    continue
+    %end
     arg = ['VP' b];
     try
         switch type

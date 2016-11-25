@@ -22,14 +22,14 @@ function [ data, Info ] = ph1valid01_prepro( subjid, experiment )
 %% parsing inputs
 if ~exist('subjid','var')
     warning('No subjid provided; using VP16 for testing purposes');
-    subjid = 'VP46';
+    subjid = 'VP11';
     warn = true;
 else
     warn = false;
 end;
 
 if ~exist('experiment','var')
-    experiment = 'Ts_fine'; 
+    experiment = 'Rp'; 
 end;
 
 %% set defaults according to experiment
@@ -114,6 +114,21 @@ cfg.trials = Info.(['cleanTrials_' experiment]);
 [ Info, data ] = prepro.getThresholds(data, Info, conds, 'clean', experiment);
 
 Info.(['isExcluded_' experiment]) = 'no';
+
+%% handle with great care: only do this once!
+% maybe keep track of recoding in subjmfile!?
+if strcmpi(subjinfo.happy_letter, 'm') && ~isfield(subjinfo, 'recoded')
+    happy_trgs = [241 242 251:253];
+    angry_trgs = happy_trgs - 100;
+    for i = 1:length(data.trialinfo)
+        if ismember(data.trialinfo(i,1), happy_trgs) % falscher Freude-Trial -> 100 abziehen
+            data.trialinfo(i,1) = data.trialinfo(i,1) - 100;
+        elseif ismember(data.trialinfo(i,1), angry_trgs) % vice versa
+            data.trialinfo(i,1) = data.trialinfo(i,1) + 100;
+        end;
+    end
+    Info.recoded = 'yes';
+end
 
 while true
     try

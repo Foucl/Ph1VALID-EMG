@@ -127,23 +127,47 @@ classdef prepro
         function [ Info, data ] = getThresholds(data, Info, conds, type, experiment)
             % recalculate clean thresholds
             for i = 1:size(conds,2)
+                if strcmpi(experiment, 'Rp')
+                    if i==2
+                        h=1;
+                    elseif i == 4
+                        h=3;
+                    else
+                        h=i;
+                    end
+                else
+                    h = i;
+                end
+                
                 con = conds{1,i};
+                con_th = conds{1,h};
                 chani = conds{3,i};
                 trg = conds{2,i};
+                trg_ch = conds{2,h};
                 indices = find(ismember(data.trialinfo, trg));
+                indices_th = find(ismember(data.trialinfo, trg_ch));
                 curdat = data.trial(indices);
+                curdat_th = data.trial(indices_th);
                 curtime = data.time(indices);
                 curtime = cell2mat(curtime');
                 [amps, ind_amps] = cellfun(@(x) max(x(chani,:)), curdat);
-                amp_times = arrayfun(@(n) (curtime(n,ind_amps(n))), 1:size(curtime,1));
+                [amps_th, ind_amps_th] = cellfun(@(x) max(x(chani,:)), curdat_th);
                 
+                amp_times = arrayfun(@(n) (curtime(n,ind_amps(n))), 1:size(curtime,1));
+
                 data.trialinfo(indices,4) = amps';
                 data.trialinfo(indices,5) = amp_times';
                 Info.([con '_' type 'MaxAmp_' experiment]) = max(amps);
                 Info.([con '_' type 'MeanMaxAmp_' experiment]) = mean(amps);
                 Info.([con '_' type 'SdMaxAmp_' experiment]) = std(amps);
                 Info.([con '_' type 'MeanMaxAmpTime_' experiment]) = mean(amp_times);
-                Info.([con '_' type 'Threshold_' experiment]) = 0.25*mean(amps);
+                if chani==1
+                    th_scale = 0.25;
+                else
+                    th_scale = 0.5;
+                end
+                
+                Info.([con '_' type 'Threshold_' experiment]) = th_scale*mean(amps_th);
             end;
         end
         
@@ -169,13 +193,16 @@ classdef prepro
                 errorTrials = nan(80,1);
                 k = 1;
                 for j = 1:length(curdat)
-                    idx = find(curdat{j}(chani,:) >= th, 1);  % indices of 'hits': => threshold in correct channel
-                    idx_o = find(curdat{j}(chani_o,:) >=th_o,1); % indices of hits-in-wrong-channel: wrong emotions shown
-                    if ~isempty(idx_o) && (curtime{j}(idx_o) < 0) && (-0.5 < curtime{j}(idx_o))   % current trial is wrong
+                    upper = find(curtime{j} >= 0, 1);
+                    lower = find(curtime{j} >= -0.5, 1);
+                    %this_dat = curdat{j}(:,lower:upper);
+                    idx = find(curdat{j}(chani,lower:upper) >= th, 1);  % indices of 'hits': => threshold in correct channel
+                    idx_o = find(curdat{j}(chani_o,lower:upper) >=th_o,1); % indices of hits-in-wrong-channel: wrong emotions shown
+                    if ~isempty(idx_o) %&& (curtime{j}(idx_o) < 0) && false%&& (-0.5 < curtime{j}(idx_o))   % current trial is wrong
                         errorTrials(k) = indices(j);
                         data.trialinfo(indices(j),2) = 69;
                         k = k +1;
-                    elseif ~isempty(idx) && (curtime{j}(idx) < 0) && (-0.5 < curtime{j}(idx))
+                    elseif ~isempty(idx) %&& (curtime{j}(idx) < 0) && false % && (-0.5 < curtime{j}(idx))
                         errorTrials(k) = indices(j);
                         data.trialinfo(indices(j),2) = 60;
                         k = k+1;
@@ -187,10 +214,12 @@ classdef prepro
                 Info.([con '_errorTrials_' experiment]) = errorTrials.';
                 Info.([con '_nErrorTrials_' experiment]) = length(errorTrials);
                 Info.([con '_nCleanTrials_' experiment]) = length(indices) - length(errorTrials);
+                Info.([con '_propErrors_' experiment]) = length(errorTrials) / length(indices);
                 allErrors{i} = errorTrials';
                 nErrors = nErrors + length(errorTrials);
             end;
             Info.(['nErrors_' experiment]) = nErrors;
+            Info.(['propErrors_' experiment]) = nErrors/length(data.trialinfo);
             Info.(['allErrors_' experiment]) = [allErrors{:}];
         end
     end

@@ -54,6 +54,21 @@ if ~isempty(val) && ~all(isnan(val)) && size(trl,1)==size(val,1)
   trl = [trl val];
 end
 
+if ~isempty(strfind(cfg.dataset, 'VP07'))
+    trl = trl(1:end-2,:);
+end
+
+if length(trl) > 359
+    disp(['!!!!!!!! TOO MANY TRIALS!!!: ' num2str(length(trl))])
+    disp('printing the last three')
+    disp(num2str(trl(end,end)))
+    disp(num2str(trl(end-1,end)))
+    disp(num2str(trl(end-2,end)))
+    disp(['dataset is ' cfg.dataset])
+    disp('==========')
+    trl=trl(1:359,:); 
+end
+
 if length(trl) < 350
     %if isempty(strfind(cfg.dataset, 'VP14'))
         nTrl = length(trl);

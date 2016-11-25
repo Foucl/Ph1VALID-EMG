@@ -5,7 +5,7 @@ function [ data, Info ] = ph1valid02_classify( subjid, which_th, experiment )
 %% 0. setup
 
 if nargin < 1
-    subjid = 'VP16';
+    subjid = 'VP26';
     which_th = 'Threshold';
     experiment = 'Rp';
 elseif nargin < 2
@@ -83,18 +83,32 @@ for i = 1:nCon
     
     curdat = data.trial(indices);
     curtime = data.time(indices);
+    curinfo = data.trialinfo(indices,:);
     
     fpTrials = nan(1,100);
     hitTrials = nan(1,100);
     omissionTrials = nan(1,100);
+    errors = [60 69];
     for j = 1:length(curdat)
+        if ismember(curinfo(j, 2), errors)
+            data.trialinfo(indices(j), 3) = nan;
+            continue
+        end
+        
         % start searching only after 0
         zero = find(curtime{j} >= 0, 1);
         
         idx = find(curdat{j}(chani,zero:end) >= th(i), 1);  % indices of 'hits': => threshold in correct channel
-        idx = idx + zero;
+        idx = idx + zero -1;
         idx_o = find(curdat{j}(chani_o,zero:end) >=th_o(i),1); % indices of hits-in-wrong-channel: wrong emotions shown
-        idx_o = idx_o + zero;
+        idx_o = idx_o + zero -1;
+        
+        %{
+        if idx > numel(curtime{j})
+            fprintf('%d is too large (only %d samples in trial %d)!\n', idx, numel(curtime{j}), j);
+            idx = numel(curtime{j});
+        end
+        %}
        
         if (isempty(idx)) && (isempty(idx_o))
             data.trialinfo(indices(j),2) = 59; % 59: code for omission
@@ -108,7 +122,7 @@ for i = 1:nCon
             data.trialinfo(indices(j),2) = 0; % 0: code for Hit
             hitTrials(j) = indices(j);
             nHits = nHits + 1;
-            time = curtime{j}(idx);
+            time = curtime{j}(idx);          
             data.trialinfo(indices(j),3) = time;
         end; 
     end;
@@ -195,22 +209,116 @@ for i = 1:size(val, 2)
     Info.([con '_sdRT_' experiment th_str]) = sd_response_time;
 end;
 
-%% some more calculations (hit-percentages etc.)
+%% 5. Outlier Analysis
+% 5.1. Initialize Variables for no_of_trials and trial_numbers
+disp(Info)
+nOl1 = 0;
+nOl2 = 0;
+
+nCon = size(conds, 2);
+%Info = [];
+%data.trialinfo(:,3) = nan;
+%ch_wrong = [conds{3,[3 4 1 2]}];
+allOl1 = cell(1,nCon);
+allOl2 = cell(1,nCon);
+%allHits = cell(1,nCon);
+
+% 5.2. Main Loop
+%CAVEAT: ONLY LOOP OVER HITS!
+%CAVEAT: COMM_ERRORS! (if there: exclude them; if not: trial-numbers aren't
+%right) -> they're not there anymore, so add a routine to insert them at
+%the right position later!
+for i = 1:nCon
+    con = conds{1,i};
+    trg = conds{2,i};
+    %chani_o = ch_wrong(i);
+    indices = find(ismember(data.trialinfo, trg));
+    
+    curdat = data.trial(indices);
+    
+    ol1Trials = nan(1,100);
+    ol2Trials = nan(1,100);
+    
+    mean_rt = Info.([con '_meanRT_' experiment th_str]);
+    sd = Info.([con '_sdRT_' experiment th_str]);
+    th_ol1 = mean_rt + 2*sd;
+    th_ol2 = mean_rt - 2*sd;
+    
+    % the RT is somewhere in curdat!; maybe here:
+    %data.trialinfo(indices(j),3)
+    
+    % don't go into curdat!
+    for j = 1:length(curdat)
+        % get this trial's RT:
+        rt = data.trialinfo(indices(j),3);
+        
+         if rt > th_ol1
+            data.trialinfo(indices(j),2) = 99; % 99: code for first order outlier
+            data.trialinfo(indices(j),3) = nan;
+            ol1Trials(j) = indices(j);
+            nOl1 = nOl1 + 1;
+        elseif rt < th_ol2
+            data.trialinfo(indices(j),2) = 91; % 91: code for second order outlier
+            data.trialinfo(indices(j),3) = nan;
+            ol2Trials(j) = indices(j);
+            nOl2 = nOl2 + 1;
+         end
+            
+    end;
+    ol1Trials(isnan(ol1Trials)) = [];
+    ol2Trials(isnan(ol2Trials)) = [];
+    
+    allOl1{i} = ol1Trials;
+    Info.([con '_nOl1Trials_' experiment th_str]) = length(ol1Trials);
+    allOl2{i} = ol2Trials;
+    Info.([con '_nOl2Trials_' experiment th_str]) = length(ol2Trials);
+        
+end;
+
+%% 6.some more calculations (hit-percentages etc.)
+nTotErr = 0;
+nTotHits = 0;
+nTotFP = 0;
+nTotOm = 0;
+nTotOl =0;
 for i = 1:size(conds, 2)
     con = conds{1,i};
     nErr = subjinfo.([con '_nErrorTrials_' experiment]); %conds{6,i};
     nDefault = subjinfo.([con '_nCleanTrials_' experiment]) + nErr;
     nHits = Info.([con '_nHitTrials_' experiment th_str]);
     nFP = Info.([con '_nFpTrials_' experiment th_str]);
-    nOm = Info.([con '_nOmissionTrials_' experiment th_str]);
+    nOm = Info.([con '_nOmissionTrials_' experiment th_str]); 
+    nOl1 = Info.([con '_nOl1Trials_' experiment th_str]);
+    nOl2 = Info.([con '_nOl2Trials_' experiment th_str]);
+    nOl = nOl1 + nOl2;
+    Info.([con '_nOlTrials_' experiment th_str]) = nOl;
     Info.([con '_propHit_' experiment th_str]) = nHits / (nDefault - nErr);
     Info.([con '_propOm_' experiment th_str]) = nOm / (nDefault - nErr);
     Info.([con '_propFP_' experiment th_str]) = nFP / (nDefault - nErr);
+    Info.([con '_propOl_' experiment th_str]) = (nOl) / (nDefault - nErr);
+    nTotErr = nTotErr + nErr;
+    nTotHits = nTotHits + nHits;
+    nTotFP = nTotFP + nFP;
+    nTotOm = nTotOm + nOm;
+    nTotOl = nTotOl + nOl;
 end;
+Info.(['nErrTrials_' experiment th_str]) = nTotErr;
+Info.(['nHitTrials_' experiment th_str]) = nTotHits;
+Info.(['nFPTrials_' experiment th_str]) = nTotFP;
+Info.(['nOlTrials_' experiment th_str]) = nTotOl;
+Info.(['nOmTrials_' experiment th_str]) = nTotOm;
+%Info.(['nCleanTrials_' experiment]);
 
-%% 5. dump data
+
+%% 7. dump data
 
 save(fullfile(SessionInfo.emgPreproDir, subjid, [subjid '_class_' experiment  th_str '.mat']), 'data');
+trl_inf = data.trialinfo(:,1:4);
+headers = {'trigger', 'category', 'rt', 'amplitude'};
+T = array2table(trl_inf, 'VariableNames', headers);
+
+t_fname = fullfile(SessionInfo.tableDir, 'trial_wise', [subjid '_trls.csv']);
+writetable(T, t_fname);
 
 io.writeToSubjmfile(Info, subjid);
 

@@ -162,73 +162,104 @@ writetable(T_demo, fullfile(tableDir, 'subjinfo_demo.csv'));
 %valid = {'val', 'inval'};
 conds{1,4} = 'Rp_CLEAN';
 conds(2,4) = conds(2,1);
+%cond = conds(:,3); % switching
+cond = conds(:,1); % priming
+
+measures = {'meanRT', 'sdRT', 'nErrorTrials', 'nFpTrials', 'nOl1Trials', 'nOl2Trials', 'nOmissionTrials', ...
+    'nHitTrials', 'nCleanTrials', 'MeanMaxAmp','SdMaxAmp'};
+
+mv = {'propOm', 'propHit', 'propFP','propOl', 'propErrors'};
+measures = [measures mv];
+measures = mv;
 
 
-measures = {'meanRT', 'sdRT', 'nFpTrials', 'nOmissionTrials', ...
-    'nHitTrials', 'propHit', 'propFP', 'propOm'};
-nTrialVars = (length(exp) * numel(valid) + numel([conds{2,3}])) * length(em) * length(measures);
+nTrialVars = (1 * numel(valid) + numel([cond{2}])) * length(em) * length(measures);
 n = 1;
 trialVars = cell(1, nTrialVars);
 for i = 1:length(em)
-    for j = 1:length(conds(1,:))
-        for l = 1:length(measures)
-            for m = 1:length(conds{2,j})
-                trialVars{n} = [em{i} '_' conds{2,j}{m} '_' measures{l} '_' conds{1,j}];
-                 n = n + 1 ;
-            end;
+    %for j = 1:length(conds(1,:))
+    for l = 1:length(measures)
+        for m = 1:length(cond{2})
+            trialVars{n} = [em{i} '_' cond{2}{m} '_' measures{l} '_' cond{1}];
+            n = n + 1 ;
         end;
     end;
+    %end;
 end;
-
+last_ind = find(cellfun(@isempty,trialVars),1);
+%totVars = {'propOm', 'propHit', 'propFP','propOl', 'propErrors'};
+totVars = {'nOmTrials', 'nHitTrials', 'nFPTrials','nOlTrials', 'nErrTrials', 'propErrors'};
+for i = 1:length(totVars)
+    tv = totVars{i};
+    trialVars{last_ind + (i-1)} = [tv '_Rp']
+end
+last_ind = find(cellfun(@isempty,trialVars),1);
+%trialVars{last_ind} = 'nTs_fineTrials'; % <- switching
+%trialVars{last_ind} = 'nRp_Trials';
+trialVars = trialVars(1:last_ind-1);
+%nTs_fineTrials -> for total trials
 T_behav = mfile_table(:,[standard_vars, trialVars]);
-writetable(T_behav, fullfile(tableDir, 'subjinfo_behav.csv'));
+measures_err = {'nHitTrials', 'nFpTrials', 'nOmissionTrials', 'nErrorTrials', 'nCleanTrials'};
+vars_err = {};
+vars_rt = {};
+nerr = 1;
+nrt=1;
+for i = 1:length(trialVars)
+    this_var = trialVars{i};
+    for j = 1:length(measures_err)
+        if strfind(this_var, measures_err{j})
+            vars_err{nerr} = trialVars{i};
+            nerr = nerr + 1;
+        end
+        if strfind(this_var, 'meanRT')
+            vars_rt{nrt} = this_var;
+            nrt = nrt + 1;
+        end
+    end
+end
+T_rt = mfile_table(:,[{'subjid'} vars_rt]);
+T_err = mfile_table(:,[{'subjid'} vars_err]);
+writetable(T_behav, fullfile(tableDir, 'averaged', 'Proportions_RP.csv'));
+%writetable(T_rt, fullfile(tableDir, 'averaged', 'Switching_RTonly.csv'));
+%writetable(T_err, fullfile(tableDir,'averaged', 'Switching_ErrorsHitsOnly.csv'));
 
 
 %% signal?
-sign_measures ={'MeanMaxAmp', 'MeanMaxAmpTime', 'SdMaxAmp'};
-%nSignVars = length(sign_measures) * length(exp) * length(valid) * length(em);
-nSignVars = (length(exp) * numel(valid) + numel([conds{2,3}])) * length(em) * length(sign_measures);
 
-n = 1;
-signVars = cell(1, nSignVars);
-for i = 1:length(em)
-    for j = 1:length(conds(1,:))
-        for l = 1:length(sign_measures)
-            for m = 1:length(conds{2,j})
-                signVars{n} = [em{i} '_' conds{2,j}{m} '_' sign_measures{l} '_' conds{1,j}];
-                 n = n + 1;
-            end;
-        end;
-    end;
-end;
-ampVars = export.tblGrep(mfile_table, 'amp');
-thVars = export.tblGrep(mfile_table, 'thr');
-
-T_sign = mfile_table(:,[standard_vars, signVars, thVars]);
-writetable(T_sign, fullfile(tableDir, 'subjinfo_amps.csv'));
-T = join(T_sign, T_behav);
-writetable(T, fullfile(tableDir, 'subjinfo_behav.csv'));
 %% state & other self report measures from experimental run
 % DONE:60 map state (mood, ruhig, erregt, wach, mued) to correct experiment
 % DONE:30 get correct 'is_excluded_{experiment}' values during prepro
 
-rp_gen_vars = {'nRpTrials', 'nErrors', 'nFP', 'nOmissions', 'nHits'};
-ts_gen_vars = ['nTsTrials', cellfun(@(x) [x '_ts'], rp_gen_vars(2:end), 'Uniform', 0)];
+rp_gen_vars = {'nRpTrials', 'nErrors_Rp', 'nFP_Rp', 'nOmissions_Rp', 'nHits_Rp'};
+ts_gen_vars = ['nTsTrials', cellfun(@(x) [x '_Ts_fine'], rp_gen_vars(2:end), 'Uniform', 0)];
 conds_rp = {'AN_prep', 'AN_unprep', 'HA_prep', 'HA_unprep'};
-conds_ts = {'AN_rep', 'AN_swt', 'HA_rep', 'HA_swt'};
+conds_ts = conds{2,3};
 con_vars = {'nFpTrials', 'nOmissionTrials', 'nHitTrials', 'meanRT', 'sdRT', 'propOm', 'propHit', 'propFP', ...
     'cleanMeanMaxAmp'};
 
-
-rp_con_vars = cell(length(conds_ts), length(con_vars));
-ts_con_vars = rp_con_vars;
-for i = 1:length(conds_rp)
-    for j = 1:length(con_vars)
-        rp_con_vars{i, j} = [conds_rp{i} '_' con_vars{j}];
-        ts_con_vars{i, j} = [conds_ts{i} '_' con_vars{j}];
+%{
+for i = 1:length(em)
+    %for j = 1:length(conds(1,:))
+    for l = 1:length(measures)
+        for m = 1:length(cond{2})
+            trialVars{n} = [em{i} '_' cond{2}{m} '_' measures{l} '_' cond{1}];
+%}
+    
+rp_con_vars = cell(length(conds_rp), length(con_vars));
+ts_con_vars = cell(length(conds_ts), length(con_vars));
+for q = 1:length(em)
+    for i = 1:length(conds_rp)
+        for j = 1:length(con_vars)
+            rp_con_vars{i, j} = [em{i} '_' conds_rp{i} '_' con_vars{j}];
+        end;
+    end;
+    for i = 1:length(conds_ts)
+        for j = 1:length(con_vars)
+            ts_con_vars{i, j} = [em{i} '_' conds_ts{i} '_' con_vars{j}];
+        end;
     end;
 end;
-mfile_table.nTsTrials = mfile_table.nFP_ts + mfile_table.nErrors_ts + mfile_table.nOmissions_ts + mfile_table.nHits_ts;
+mfile_table.nTsTrials = mfile_table.nFP_Ts_fine + mfile_table.nErrors_Ts_fine + mfile_table.nOmissions_Ts_fine + mfile_table.nHits_Ts_fine;
 
 interesting_vars = [standard_vars'; ts_gen_vars'; rp_gen_vars'; ts_con_vars(:); rp_con_vars(:)];
 T = mfile_table(:, interesting_vars);

@@ -19,7 +19,7 @@
 
 - Excluded Participants if ...
 
-
+http://onlinelibrary.wiley.com/doi/10.1111/psyp.12220/full
 > **Electrophysiological Recordings**
 > The EMG was recorded from zygomaticus and corrugator muscles with Ag/AgCl electrodes according to the guidelines described in Fridlund and Cacioppo (1986). For each muscle, two electrodes filled with a conductive gel were attached to the left side of the face with adhesive pads; ground was placed on the upper half of the right forehead. Impedances were kept below 10 kΩ. The EMG signal was measured, rectified, and integrated (time constant = 10 ms) using a Coulbourn V76–23a Hi amplifier. Low- and high-pass filters were set at 10 kHz and 8 Hz, respectively. The raw signal was digitized with the BrainVision recording software (Brain Products GmbH, Munich, Germany) and sampled at a frequency of 1 kHz.
 > EEG was recorded from 40 Ag/AgCl electrodes using a BrainAmp DC amplifier (Brain Products GmbH), filtered online with a band-pass of 0.032–125 Hz, and a notch filter at 50 Hz, and sampled at 1000 Hz. Electrode impedances were kept below 5 kΩ. All electrodes were referenced to the left mastoid. Electrooculogram was measured on both sides at the external canthi and below the right eye.

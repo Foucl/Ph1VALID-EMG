@@ -18,12 +18,13 @@ Focus on differences to Should I Smile of Should I Frown (SISoSIF).
 - baseline removal: 200ms before S1
 - Prior to classification, each data point in each epoch was z standardized. The mean and standard deviation used in this normalization were calculated accross all trials (regardless of condition).
   - for discussions of standardizing facial EMG data see e.g.: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2825576/ who also cite https://www.ncbi.nlm.nih.gov/pubmed/17999934
+  - (I am realizing now that the way I standardized this is not very clean: The segment length (4.5s) is shorter than the actual trial duration (6.8s); thus, the first 300 and last 2000 ms of each trial are not used for calculating the mean and SD for each channel)
 
 ### Classification
 - Identical to SISoSIF, only difference: Threshold: 25% Cor, 50% Zyg
 - Splitting into 4 conditions, removal of Inhibition Errors, re-baselining to S2, Hit/Miss/FP Classification identical to SISoSIF
-- Outliers on trial level: >= mean +/- 2 SD (for each of the four conditions)
-- Outliers on subject level: no idea whom you excluded and based on what criteria
+- RT: Outliers on trial level: >= mean +/- 2 SD (for each of the four conditions)
+- Errors: Outliers on subject level: no idea whom you excluded and based on what criteria
 
 ## Lit
 Oostenveld, R., Fries, P., Maris, E., & Schoffelen, J.-M. (2010). FieldTrip: Open Source Software for Advanced Analysis of MEG, EEG, and Invasive Electrophysiological Data. Computational Intelligence and Neuroscience, 2011, e156869. https://doi.org/10.1155/2011/156869

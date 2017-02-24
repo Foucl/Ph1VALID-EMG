@@ -12,19 +12,16 @@ Focus on differences to Should I Smile of Should I Frown (SISoSIF).
 - Software: Matlab & Fieldtrip (recommended wording from fieldtrip website: "The data analysis was performed using the Fieldtrip toolbox for EEG/MEG-analysis (Oostenveld, Fries, Maris, & Schoffelen, 2010; Donders Institute for Brain, Cognition and Behaviour, Radboud University Nijmegen, the Netherlands. See http://www.ru.nl/neuroimaging/fieldtrip")). Matlab should qualify as 'standard software' in the eye of APA and doesn't need to be cited.
 
 ### Preprocessing
-- Exclusion of breaks or other non-experimental periods
 - Offline Filtering: 10 Hz Lowpass Butterfly Filter of order 2
 - Montage & rectification identical to SISoSIF
 - Segmentation into 4.5s epochs, (beginning 200ms before onset S1, ending 500ms after offset S2)
 - baseline removal: 200ms before S1
-- z standardization:
-  - Prior to classification, those segments were merged in order to create a continous dataset that excludes non-experimental periods like breaks.
-  - This continuous signal of each channel was then z standardized across all trials (regardless of condition).
-     - for discussions of standardizing facial EMG data see e.g.: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2825576/ who also cite https://www.ncbi.nlm.nih.gov/pubmed/17999934
+- Prior to classification, each data point in each epoch was z standardized. The mean and standard deviation used in this normalization were calculated accross all trials (regardless of condition).
+  - for discussions of standardizing facial EMG data see e.g.: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2825576/ who also cite https://www.ncbi.nlm.nih.gov/pubmed/17999934
 
 ### Classification
-- identical to SISoSIF, noly difference: Threshold: 25% Cor, 50% Zyg
-- Removal of Inhibition Errors, re-baselining to S2, Hit/Miss/FP Classification identical to SISoSIF
+- Identical to SISoSIF, only difference: Threshold: 25% Cor, 50% Zyg
+- Splitting into 4 conditions, removal of Inhibition Errors, re-baselining to S2, Hit/Miss/FP Classification identical to SISoSIF
 - Outliers on trial level: >= mean +/- 2 SD (for each of the four conditions)
 - Outliers on subject level: no idea whom you excluded and based on what criteria
 

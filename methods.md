@@ -1,6 +1,6 @@
 Focus on differences to Should I Smile of Should I Frown (SISoSIF).
 
-# Data Acquisition / Electrophysiological Recordings
+## Data Acquisition / Electrophysiological Recordings
 - BioSemi Reference Free (CMS/DRL)
 - Bipolar EMG electrodes, left Cor & Zyg [Ag/Ag-Cl, Friedlund & Cacioppo ...] -> Korb's go-nogo paper might be a decent (if brief) template for describing a facial EMG biosemi setup
 - DRL: Placed centrally on forehead
@@ -8,10 +8,10 @@ Focus on differences to Should I Smile of Should I Frown (SISoSIF).
 - recorded at 2048 Hz
 - downsampled offline to 512 Hz
 
-# Data Analysis (EMG)
+## Data Analysis (EMG)
 - Software: Matlab & Fieldtrip (recommended wording from fieldtrip website: "The data analysis was performed using the Fieldtrip toolbox for EEG/MEG-analysis (Oostenveld, Fries, Maris, & Schoffelen, 2010; Donders Institute for Brain, Cognition and Behaviour, Radboud University Nijmegen, the Netherlands. See http://www.ru.nl/neuroimaging/fieldtrip")). Matlab should qualify as 'standard software' in the eye of APA and doesn't need to be cited.
 
-## Preprocessing
+### Preprocessing
 - Exclusion of breaks or other non-experimental periods
 - Offline Filtering: 10 Hz Lowpass Butterfly Filter of order 2
 - Montage & rectification identical to SISoSIF
@@ -22,7 +22,7 @@ Focus on differences to Should I Smile of Should I Frown (SISoSIF).
   - This continuous signal of each channel was then z standardized across all trials (regardless of condition).
      - for discussions of standardizing facial EMG data see e.g.: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2825576/ who also cite https://www.ncbi.nlm.nih.gov/pubmed/17999934
 
-## Classification
+### Classification
 - identical to SISoSIF, noly difference: Threshold: 25% Cor, 50% Zyg
 - Removal of Inhibition Errors, re-baselining to S2, Hit/Miss/FP Classification identical to SISoSIF
 - Outliers on trial level: >= mean +/- 2 SD (for each of the four conditions)

@@ -5,8 +5,8 @@ Focus on differences to Should I Smile of Should I Frown (SISoSIF).
 - Bipolar EMG electrodes, left Cor & Zyg [Ag/Ag-Cl, Friedlund & Cacioppo ...] -> Korb's go-nogo paper might be a decent (if brief) template for describing a facial EMG biosemi setup
 - DRL: Placed centrally on forehead
 - CMS: between Zyg and Cor electrodes (usually roughly 3 cm below left eye)
-- recorded at 2048 Hz
-- downsampled offline to 512 Hz
+- recorded at 1024 Hz
+- downsampled offline to 128 Hz
 
 ## Data Analysis (EMG)
 - Software: Matlab & Fieldtrip (recommended wording from fieldtrip website: "The data analysis was performed using the Fieldtrip toolbox for EEG/MEG-analysis (Oostenveld, Fries, Maris, & Schoffelen, 2010; Donders Institute for Brain, Cognition and Behaviour, Radboud University Nijmegen, the Netherlands. See http://www.ru.nl/neuroimaging/fieldtrip")). Matlab should qualify as 'standard software' in the eye of APA and doesn't need to be cited.
@@ -16,6 +16,8 @@ Focus on differences to Should I Smile of Should I Frown (SISoSIF).
 - Montage & rectification identical to SISoSIF
 - Segmentation into 4.5s epochs, (beginning 200ms before onset S1, ending 500ms after offset S2)
 - baseline removal: 200ms before S1
+
+#### z standardization
 - Prior to classification, each data point in each epoch was z standardized. The mean and standard deviation used in this normalization were calculated accross all trials (regardless of condition).
   - for discussions of standardizing facial EMG data see e.g.: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2825576/ who also cite https://www.ncbi.nlm.nih.gov/pubmed/17999934
   - (I am realizing now that the way I standardized this is not very clean: The segment length (4.5s) is shorter than the actual trial duration (6.8s); thus, the first 300 and last 2000 ms of each trial are not used for calculating the mean and SD for each channel)

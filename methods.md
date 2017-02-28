@@ -13,14 +13,15 @@ Focus on differences to Should I Smile of Should I Frown (SISoSIF).
 
 ### Preprocessing
 - Offline Filtering: 10 Hz Lowpass Butterfly Filter of order 2
-- Montage & rectification identical to SISoSIF
+- Montage: values of medial electrode subtracted from values of lateral electrode
+- Full Wave Rectification
+- Moving Average (window length: 3 sp / 23.4 ms)
 - Segmentation into 4.5s epochs, (beginning 200ms before onset S1, ending 500ms after offset S2)
 - baseline removal: 200ms before S1
 
 #### z standardization
 - Prior to classification, each data point in each epoch was z standardized relative to the whole experiment: The mean and standard deviation used in this normalization were calculated accross all trials (regardless of condition).
   - for discussions of standardizing facial EMG data see e.g.: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2825576/ who also cite https://www.ncbi.nlm.nih.gov/pubmed/17999934
-  - *(I am realizing now that the way I standardized this is not very clean: The segment length (4.5s) is shorter than the actual trial duration (6.8s); thus, the first 300 and last 2000 ms of each trial are not used for calculating the mean and SD for each channel)*
 
 ### Classification
 - Identical to SISoSIF, only difference: Threshold: 25% Cor, 50% Zyg
